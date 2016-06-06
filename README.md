@@ -1,6 +1,6 @@
 # Acesso a todos
 
-(Des)Marcar espaços públicos e privados que oferecem equidade de acesso.
+Marcar espaços públicos e privados que oferecem equidade de acesso.
 
 >Status: em fluxo
 

@@ -11,6 +11,7 @@ Marcar espaços públicos e privados que oferecem equidade de acesso.
 * [Daniel Fireman](github.com/danielfireman): projeto, arquitetura, desenvolvimento
 * Erivan
 * Heiner
+* Diego
 
 # License
 This project is licensed under the Apache License 2.0.

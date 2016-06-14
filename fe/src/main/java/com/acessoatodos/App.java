@@ -7,7 +7,6 @@ import org.jooby.Results;
  * Entry point of FE server.
  */
 public class App extends Jooby {
-
   // Simple HTTP endpoints.
   // TODO(danielfireman): Endpoint addresses must be constants.
   {

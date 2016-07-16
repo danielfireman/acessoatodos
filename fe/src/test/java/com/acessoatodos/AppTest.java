@@ -1,10 +1,24 @@
 package com.acessoatodos;
 
+import org.jooby.test.Client;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 
-public class AppTest extends BaseTest {
-  @Test
-  public void ping() throws Exception {
-    server.get("/ping").expect(200);
-  }
+public class AppTest {
+	@ClassRule
+	public static IntegrationTestServer app = new IntegrationTestServer(new App());
+
+	@Rule
+	public Client server = new Client(app.getAdress());
+
+	@Test
+	public void ping() throws Exception {
+		server.get("/ping").expect(200);
+	}
+
+	@Test
+	public void tempRedirect() throws Exception {
+		server.get("/foooo").expect(200);
+	}
 }

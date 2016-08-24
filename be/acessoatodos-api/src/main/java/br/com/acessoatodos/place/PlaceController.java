@@ -96,6 +96,7 @@ public class PlaceController {
                 placeVO.setName(googlePlaceModel.getName());
                 placeVO.setLatitude(googlePlaceModel.getGeometry().getLocation().getLat());
                 placeVO.setLongitude(googlePlaceModel.getGeometry().getLocation().getLng());
+                placeVO.setTypes(googlePlaceModel.getTypes());
 
                 places.add(placeVO);
             }

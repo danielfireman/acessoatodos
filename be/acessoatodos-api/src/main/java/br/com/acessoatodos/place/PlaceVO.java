@@ -17,4 +17,5 @@ public class PlaceVO {
     private Float latitude;
     private Float longitude;
     private ArrayList<AcessibilityVO> acessibilities;
+    private ArrayList<String> types;
 }

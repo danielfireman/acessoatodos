@@ -24,15 +24,11 @@ public class GooglePlaceResponseModel {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        GooglePlaceResponseModel resultGoogle = null;
-
         try {
-            resultGoogle = mapper.readValue(message, GooglePlaceResponseModel.class);
+            return mapper.readValue(message, GooglePlaceResponseModel.class);
         } catch (IOException e) {
             throw new Err(Status.UNPROCESSABLE_ENTITY, "Erro na conversão dos dados do google places.");
         }
-
-        return resultGoogle;
     }
 
     public List<PlaceVO> convertToVO() {

@@ -25,13 +25,13 @@ class PlaceController {
     /**
      * Distance to define the radius range to search on google places API
      */
-    private final Integer RADIUS_RANGE_1000M = 1000;
+    private final Integer RADIUS_RANGE_1000_METERS = 1000;
 
     public List<PlaceVO> getNearbyPlaces(Float latitude, Float longitude) {
         String result = requestToGooglePlaces(latitude, longitude);
 
         GooglePlaceResponseModel googlePlaceResponseModel = new GooglePlaceResponseModel();
-        googlePlaceResponseModel.hydrate(result);
+        googlePlaceResponseModel = googlePlaceResponseModel.hydrate(result);
 
         List<PlaceVO> places = googlePlaceResponseModel.convertToVO();
 
@@ -42,7 +42,7 @@ class PlaceController {
         String placeUrlToSearch =
                 "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
                         "?location=" + latitude + "," + longitude +
-                        "&radius=" + RADIUS_RANGE_1000M +
+                        "&radius=" + RADIUS_RANGE_1000_METERS +
                         "&key=" + KEY_GOOGLE_PLACES;
 
         URL url = null;

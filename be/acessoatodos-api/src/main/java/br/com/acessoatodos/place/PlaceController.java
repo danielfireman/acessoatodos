@@ -20,7 +20,7 @@ class PlaceController {
     /**
      * Key of API registered on google
      */
-    private final String KEY_GOOGLE_PLACES = "AIzaSyCJaq3D13uFou0jF9hJwMUQ2GfQH43ZuWk";
+    private final String KEY_GOOGLE_PLACES = System.getenv().get("KEY_GOOGLE_PLACES");
 
     /**
      * Distance to define the radius range to search on google places API
@@ -44,6 +44,8 @@ class PlaceController {
                         "?location=" + latitude + "," + longitude +
                         "&radius=" + RADIUS_RANGE_1000_METERS +
                         "&key=" + KEY_GOOGLE_PLACES;
+
+        System.out.println(KEY_GOOGLE_PLACES);
 
         URL url = null;
 

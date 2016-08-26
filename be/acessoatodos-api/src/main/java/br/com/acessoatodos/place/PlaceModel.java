@@ -6,13 +6,21 @@ import lombok.Setter;
 import java.util.List;
 
 /**
- * Created by k-heiner@hotmail.com on 22/08/2016.
+ * This class is a model of system to define the attributes that come from routes
+ * and define the methods reference this model.
  */
 @Getter
 @Setter
-public class PlaceModel {
+class PlaceModel {
 
+    /**
+     * Latitude position of geolocation point
+     */
     private Float latitude;
+
+    /**
+     * Longitude position of geolocation point
+     */
     private Float longitude;
 
     protected List<PlaceVO> getNearbyPlaces() {

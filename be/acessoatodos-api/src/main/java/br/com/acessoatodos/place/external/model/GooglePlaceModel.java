@@ -6,13 +6,10 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 
-/**
- * Created by k-heiner@hotmail.com on 23/08/2016.
- */
 @Getter
 @Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GooglePlaceModel {
+class GooglePlaceModel {
     private GoogleGeometryModel geometry;
     private String icon;
     private String id;

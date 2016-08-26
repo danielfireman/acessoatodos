@@ -1,0 +1,14 @@
+br\com\acessoatodos\place\PlaceResource.class
+br\com\acessoatodos\utils\AcessoAaTodosHandlerException.class
+br\com\acessoatodos\place\PlaceVO.class
+br\com\acessoatodos\place\external\model\GoogleGeometryModel.class
+br\com\acessoatodos\place\external\model\GoogleLocationModel.class
+br\com\acessoatodos\place\PlaceModel.class
+br\com\acessoatodos\utils\AcessoAaTodosResponse.class
+br\com\acessoatodos\App.class
+br\com\acessoatodos\place\external\model\GooglePlaceModel.class
+br\com\acessoatodos\place\external\model\GooglePlaceResponseModel.class
+br\com\acessoatodos\place\PlaceController.class
+br\com\acessoatodos\utils\AcessoAaTodosException.class
+br\com\acessoatodos\place\PlaceQuery.class
+br\com\acessoatodos\acessibility\AcessibilityVO.class

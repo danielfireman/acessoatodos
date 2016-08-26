@@ -1,4 +1,4 @@
-package br.com.acessoatodos.utils;
+package br.com.acessoatodos.exception;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,15 +7,15 @@ import org.jooby.Status;
 import org.jooby.internal.parser.StringConstructorParser;
 
 /**
- * Created by k-heiner@hotmail.com on 23/08/2016.
+ * This exception is a default exception used by system to throw an error
  */
 @Getter
 @Setter
-public class AcessoAaTodosException extends Exception {
+public class AcessoATodosException extends Exception {
     private Integer code;
     private String message;
 
-    public AcessoAaTodosException(Status status, String message) {
+    public AcessoATodosException(Status status, String message) {
         this.setCode(status.value());
         this.setMessage(message);
     }

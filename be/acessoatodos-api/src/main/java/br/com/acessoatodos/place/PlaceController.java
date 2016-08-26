@@ -1,10 +1,6 @@
 package br.com.acessoatodos.place;
 
-import br.com.acessoatodos.place.external.model.GooglePlaceModel;
 import br.com.acessoatodos.place.external.model.GooglePlaceResponseModel;
-import br.com.acessoatodos.utils.AcessoAaTodosException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jooby.Err;
 import org.jooby.Status;
 
@@ -13,23 +9,31 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by k-heiner@hotmail.com on 22/08/2016.
+ * This class is responsible to interact with external API, database
+ * and hydrate the object to return to view
  */
-public class PlaceController {
+class PlaceController {
 
+    /**
+     * Key of API registered on google
+     */
     private final String KEY_GOOGLE_PLACES = "AIzaSyCJaq3D13uFou0jF9hJwMUQ2GfQH43ZuWk";
+
+    /**
+     * Distance to define the radius range to search on google places API
+     */
     private final Integer RADIUS_RANGE_1000M = 1000;
 
     public List<PlaceVO> getNearbyPlaces(Float latitude, Float longitude) {
         String result = requestToGooglePlaces(latitude, longitude);
 
-        GooglePlaceResponseModel googlePlaceResponseModel = convertResult(result);
+        GooglePlaceResponseModel googlePlaceResponseModel = new GooglePlaceResponseModel();
+        googlePlaceResponseModel.hydrate(result);
 
-        List<PlaceVO> places = hydrateGooglePlace(googlePlaceResponseModel);
+        List<PlaceVO> places = googlePlaceResponseModel.convertToVO();
 
         return places;
     }
@@ -70,38 +74,4 @@ public class PlaceController {
         return message;
     }
 
-    private GooglePlaceResponseModel convertResult(String message) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-        GooglePlaceResponseModel resultGoogle = null;
-
-        try {
-            resultGoogle = mapper.readValue(message, GooglePlaceResponseModel.class);
-        } catch (IOException e) {
-            throw new Err(Status.UNPROCESSABLE_ENTITY, "Erro na conversão dos dados do google places.");
-        }
-
-        return resultGoogle;
-    }
-
-    private List<PlaceVO> hydrateGooglePlace(GooglePlaceResponseModel googlePlaceResponseModel) {
-        ArrayList<PlaceVO> places = new ArrayList<>();
-
-        if (googlePlaceResponseModel.getResults() != null) {
-            for (GooglePlaceModel googlePlaceModel : googlePlaceResponseModel.getResults()) {
-                PlaceVO placeVO = new PlaceVO();
-
-                placeVO.setPlaceId(googlePlaceModel.getPlace_id());
-                placeVO.setName(googlePlaceModel.getName());
-                placeVO.setLatitude(googlePlaceModel.getGeometry().getLocation().getLat());
-                placeVO.setLongitude(googlePlaceModel.getGeometry().getLocation().getLng());
-                placeVO.setTypes(googlePlaceModel.getTypes());
-
-                places.add(placeVO);
-            }
-        }
-
-        return places;
-    }
 }

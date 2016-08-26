@@ -7,15 +7,38 @@ import lombok.Setter;
 import java.util.ArrayList;
 
 /**
- * Created by k-heiner@hotmail.com on 22/08/2016.
+ * This class is used by create a model object to return to front application
  */
 @Getter
 @Setter
 public class PlaceVO {
+    /**
+     * The place id of place registered on google
+     */
     private String placeId;
+
+    /**
+     * The name of place
+     */
     private String name;
+
+    /**
+     * The position of latitude of place
+     */
     private Float latitude;
+
+    /**
+     * The position of longitude of place
+     */
     private Float longitude;
+
+    /**
+     * The list of acessibility code registered on acessoatodos database
+     */
     private ArrayList<AcessibilityVO> acessibilities;
+
+    /**
+     * The list of descriptions of types of places registered on google
+     */
     private ArrayList<String> types;
 }

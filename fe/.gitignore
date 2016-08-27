@@ -13,3 +13,16 @@ hs_err_pid*
 
 # Jooby stuff
 target/
+
+# Intelij stuff
+.idea/
+*.iml
+*.class
+
+# Eclipse stuff
+.classpath
+.project
+.settings
+
+# Vim
+*.swp

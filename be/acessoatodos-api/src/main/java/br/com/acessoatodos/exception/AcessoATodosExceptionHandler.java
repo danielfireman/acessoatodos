@@ -1,13 +1,13 @@
-package br.com.acessoatodos.utils;
+package br.com.acessoatodos.exception;
 
 import org.jooby.Err;
 import org.jooby.Request;
 import org.jooby.Response;
 
 /**
- * Created by k-heiner@hotmail.com on 24/08/2016.
+ * This class is used by catch a default exception and make the default response error
  */
-public class AcessoAaTodosHandlerException implements Err.Handler {
+public class AcessoATodosExceptionHandler implements Err.Handler {
 
     @Override
     public void handle(Request request, Response response, Err err) throws Throwable {

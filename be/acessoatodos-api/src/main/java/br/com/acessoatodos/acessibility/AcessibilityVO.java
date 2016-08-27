@@ -1,7 +1,8 @@
 package br.com.acessoatodos.acessibility;
 
 /**
- * Created by k-heiner@hotmail.com on 23/08/2016.
+ * This class is a model to return to view
  */
 public class AcessibilityVO {
+    private Integer type;
 }

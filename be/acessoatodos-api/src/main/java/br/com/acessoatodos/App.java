@@ -1,9 +1,7 @@
 package br.com.acessoatodos;
 
 import br.com.acessoatodos.place.PlaceResource;
-import br.com.acessoatodos.utils.AcessoAaTodosException;
 import org.jooby.Jooby;
-import org.jooby.Results;
 import org.jooby.json.Jackson;
 
 /**

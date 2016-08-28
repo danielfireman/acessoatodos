@@ -10,7 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 class GooglePlacesItem {
 	static class GooglePlacesLocation {
 		float lat, lng;
-		@JsonCreator GooglePlacesLocation(@JsonProperty("lat") float lat, @JsonProperty("lng") float lng) {
+		@JsonCreator GooglePlacesLocation(
+				@JsonProperty("lat") float lat, @JsonProperty("lng") float lng) {
 			this.lat = lat;
 			this.lng = lng;
 		}
@@ -19,7 +20,8 @@ class GooglePlacesItem {
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	static class GooglePlacesGeometry {
 		GooglePlacesLocation location;
-		@JsonCreator GooglePlacesGeometry(@JsonProperty("location") GooglePlacesLocation location) {
+		@JsonCreator GooglePlacesGeometry(
+				@JsonProperty("location") GooglePlacesLocation location) {
 			this.location = location;
 		}
 	}

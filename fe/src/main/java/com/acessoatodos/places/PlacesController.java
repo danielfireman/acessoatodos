@@ -15,13 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
 /**
- * This class is responsible to interact with external API, database
- * and hydrate the object to return to view
- */
+ * This class is responsible to interact with external API, database and return view object. */
 class PlacesController {
-
     /**
-     * Key of API registered on google
+     * Key of API registered at google
      */
 	// TODO(heiner): Add a check that breaks the application if this key is not set.
     private static final String KEY_GOOGLE_PLACES = System.getenv().get("KEY_GOOGLE_PLACES");

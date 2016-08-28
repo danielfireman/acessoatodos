@@ -3,35 +3,40 @@ package com.acessoatodos.places;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 
+/**
+ * Data holder for Google Places responses.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class GooglePlacesResponse {
 	// TODO(heiner): Remove unused fields.
-	public List<String> html_attributions;
-	public List<GooglePlacesItem> results = Lists.newArrayList();
-	public String status;
-	public String next_page_token;
+	@JsonProperty List<String> html_attributions;
+	@JsonProperty List<Item> results = Lists.newArrayList();
+	@JsonProperty String status;
+	@JsonProperty String next_page_token;
 	
-	public List<GooglePlacesItem> addItem(GooglePlacesItem item) {
-		results.add(item);
-		return results;
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	static class Item {
+		@JsonProperty GooglePlacesGeometry geometry;
+		@JsonProperty String name;
+		@JsonProperty String icon;
+		@JsonProperty String id;
+		@JsonProperty String place_id;
+		@JsonProperty String scope;
+		@JsonProperty String reference;
+		@JsonProperty String vicinity;
+		@JsonProperty List<String> types;
 	}
 
-    public List<PlaceVO> toPlacesVO() {
-        if (results != null) {
-        	List<PlaceVO> places = Lists.newArrayListWithCapacity(results.size());
-            for (GooglePlacesItem item : results) {
-                PlaceVO placeVO = new PlaceVO();
-                placeVO.placeId = item.place_id;
-                placeVO.name = item.name;
-                placeVO.latitude = item.geometry.location.lat;
-                placeVO.longitude = item.geometry.location.lng;
-                placeVO.types = item.types;
-                places.add(placeVO);
-            }
-            return places;
-        }
-        return Lists.newArrayList();
-    }
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	static class GooglePlacesGeometry {
+		@JsonProperty GooglePlacesLocation location;
+	}
+
+	static class GooglePlacesLocation {
+		@JsonProperty float lat;
+		@JsonProperty float lng;
+	}
 }

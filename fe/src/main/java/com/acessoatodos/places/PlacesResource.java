@@ -33,12 +33,10 @@ public class PlacesResource {
 	 */
 	@GET
 	public Result get(Float lat, Float lng) {
-		System.out.println("Lat: " + lat + "Lng: " + lng);
 		// TODO(heiner): Revisit Exception strategy.
+		// TODO(heiner): Check for errors in response.
 		List<PlaceVO> nearbyPlaces = controller.getNearbyPlaces(lat, lng);
-		System.out.println(nearbyPlaces);
-		return Results.json(
-				new AcessoATodosResponse<List<PlaceVO>>(false, nearbyPlaces));
+		return Results.json(new AcessoATodosResponse<List<PlaceVO>>(false, nearbyPlaces));
 	}
 
 }

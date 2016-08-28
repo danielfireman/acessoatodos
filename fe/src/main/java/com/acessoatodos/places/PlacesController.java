@@ -11,6 +11,9 @@ import java.util.List;
 import org.jooby.Err;
 import org.jooby.Status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.Inject;
+
 /**
  * This class is responsible to interact with external API, database
  * and hydrate the object to return to view
@@ -28,10 +31,22 @@ class PlacesController {
      */
     private final Integer RADIUS_RANGE_1000_METERS = 1000;
 
+	private ObjectMapper mapper;
+
+	@Inject
+    public PlacesController(ObjectMapper mapper) {
+		this.mapper = mapper;
+	}
+
     public List<PlaceVO> getNearbyPlaces(float latitude, float longitude) {
-        String result = requestToGooglePlaces(latitude, longitude);
-        GooglePlacesResponse response = GooglePlacesResponse.fromMessage(result);
-        return response.toPlacesVO();
+    	String result = requestToGooglePlaces(latitude, longitude);
+        try {
+        	GooglePlacesResponse response = mapper.readValue(result, GooglePlacesResponse.class);
+            return response.toPlacesVO();
+        } catch (IOException e) {
+        	e.printStackTrace();
+            throw new Err(Status.UNPROCESSABLE_ENTITY, "Erro na conversão dos dados do google places.");
+        }
     }
 
     private String requestToGooglePlaces(float latitude, float longitude) {
@@ -42,32 +57,34 @@ class PlacesController {
                         "&key=" + KEY_GOOGLE_PLACES;
 
         URL url = null;
-
         try {
             url = new URL(placeUrlToSearch);
         } catch (MalformedURLException e) {
             throw new Err(Status.BAD_REQUEST, "URL de requisição do google mal formada.");
         }
 
-        String message = "";
-
         BufferedReader reader = null;
-
         try {
             reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"));
         } catch (IOException e) {
             throw new Err(Status.SERVER_ERROR, "Erro na abertura da stream para o google places.");
         }
 
+        StringBuffer message = new StringBuffer();
         try {
             for (String line; (line = reader.readLine()) != null; ) {
-                message += line;
+                message.append(line);
             }
         } catch (IOException e) {
             throw new Err(Status.SERVER_ERROR, "Erro na leitura da resposta do google places.");
+        } finally {
+        	try {
+				reader.close();
+			} catch (IOException e) {
+				// Print exception, but does not error request.
+				e.printStackTrace();
+			}
         }
-
-        return message;
+        return message.toString();
     }
-
 }

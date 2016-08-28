@@ -2,14 +2,15 @@ package com.acessoatodos.places;
 
 import java.util.List;
 
-import javax.inject.Named;
-
+import org.jooby.Result;
+import org.jooby.Results;
 import org.jooby.mvc.Consumes;
 import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
 
 import com.acessoatodos.response.AcessoATodosResponse;
+import com.google.inject.Inject;
 
 /**
  * This class is specific to define routes of resource
@@ -18,25 +19,26 @@ import com.acessoatodos.response.AcessoATodosResponse;
 @Consumes("json")
 @Produces("json")
 public class PlacesResource {
+	private PlacesController controller;
+	@Inject
+	PlacesResource(PlacesController controller) {
+		this.controller = controller;
+	}
 	
 	/**
 	 * Method used to retrieve a list of places
-	 *
-	 * @param latitude
-	 *            latitude used by retrive places around.
-	 * @param longitude
-	 *            longitude used by retrive places around.
-	 *
+	 * @param latitude latitude used by retrive places around.
+	 * @param longitude longitude used by retrive places around.
 	 * @return List<PlaceVO>
 	 */
 	@GET
-	public AcessoATodosResponse<List<PlaceVO>> get(
-			@Named("latitude") Float latitude,
-			@Named("longitude") Float longitude,
-			PlacesController controller) {
+	public Result get(Float lat, Float lng) {
+		System.out.println("Lat: " + lat + "Lng: " + lng);
 		// TODO(heiner): Revisit Exception strategy.
-		return new AcessoATodosResponse<List<PlaceVO>>(
-				false, controller.getNearbyPlaces(latitude, longitude));
+		List<PlaceVO> nearbyPlaces = controller.getNearbyPlaces(lat, lng);
+		System.out.println(nearbyPlaces);
+		return Results.json(
+				new AcessoATodosResponse<List<PlaceVO>>(false, nearbyPlaces));
 	}
 
 }

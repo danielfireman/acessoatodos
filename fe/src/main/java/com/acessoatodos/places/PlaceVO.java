@@ -1,6 +1,6 @@
 package com.acessoatodos.places;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.acessoatodos.acessibility.AcessibilityVO;
 
@@ -34,10 +34,10 @@ class PlaceVO {
     /**
      * The list of acessibility codes registered
      */
-    ArrayList<AcessibilityVO> acessibilities;
+    List<AcessibilityVO> acessibilities;
 
     /**
      * The list of descriptions of types of places registered on google
      */
-    ArrayList<String> types;
+    List<String> types;
 }

@@ -81,6 +81,12 @@
         <artifactId>lombok</artifactId>
         <version>1.16.8</version>
     </dependency>
+    <!-- Metrics -->
+    <dependency>
+	<groupId>org.jooby</groupId>
+		<artifactId>jooby-metrics</artifactId>
+	  	<version>1.0.0.CR7</version>
+	</dependency>
   </dependencies>
 
   <build>

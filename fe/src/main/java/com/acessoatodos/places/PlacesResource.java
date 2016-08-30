@@ -1,7 +1,5 @@
 package com.acessoatodos.places;
 
-import java.util.List;
-
 import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.mvc.Consumes;
@@ -9,7 +7,6 @@ import org.jooby.mvc.GET;
 import org.jooby.mvc.Path;
 import org.jooby.mvc.Produces;
 
-import com.acessoatodos.response.AcessoATodosResponse;
 import com.google.inject.Inject;
 
 /**
@@ -35,8 +32,7 @@ public class PlacesResource {
 	public Result get(Float lat, Float lng) {
 		// TODO(heiner): Revisit Exception strategy.
 		// TODO(heiner): Check for errors in response.
-		List<PlaceVO> nearbyPlaces = controller.getNearbyPlaces(lat, lng);
-		return Results.json(new AcessoATodosResponse<List<PlaceVO>>(false, nearbyPlaces));
+		return Results.json(controller.getNearbyPlaces(lat, lng));
 	}
 
 }

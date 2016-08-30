@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jooby</groupId>
     <artifactId>jooby-project</artifactId>
-    <version>1.0.0.CR3</version>
+    <version>1.0.0.CR7</version>
   </parent>
 
   <artifactId>acessoatodos-fe</artifactId>
@@ -19,7 +19,7 @@
 
   <properties>
   	<tag>dev</tag>
-    <jooby.version>1.0.0.CR3</jooby.version>
+    <jooby.version>1.0.0.CR7</jooby.version>
     <!-- Startup class -->
     <application.class>com.acessoatodos.App</application.class>
   </properties>
@@ -83,9 +83,16 @@
     </dependency>
     <!-- Metrics -->
     <dependency>
-	<groupId>org.jooby</groupId>
+		<groupId>org.jooby</groupId>
 		<artifactId>jooby-metrics</artifactId>
 	  	<version>1.0.0.CR7</version>
+	</dependency>
+
+	<!-- Pretty print errors -->
+	<dependency>
+		<groupId>org.jooby</groupId>
+	 	<artifactId>jooby-whoops</artifactId>
+	 	<version>1.0.0.CR7</version>
 	</dependency>
   </dependencies>
 

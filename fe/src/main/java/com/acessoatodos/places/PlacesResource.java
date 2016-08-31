@@ -24,8 +24,8 @@ public class PlacesResource {
 	
 	/**
 	 * Method used to retrieve a list of places
-	 * @param latitude latitude used by retrive places around.
-	 * @param longitude longitude used by retrive places around.
+	 * @param lat latitude used by retrive places around.
+	 * @param lng longitude used by retrive places around.
 	 * @return List<PlaceVO>
 	 */
 	@GET

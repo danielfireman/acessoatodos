@@ -59,7 +59,7 @@ public class AcessibilityTableResource {
 		// TODO(danielfireman): Inject Mapper.
 		DynamoDBMapper mapper = new DynamoDBMapper(client);
 		CreateTableRequest req = mapper.generateCreateTableRequest(AcessibilityItemModel.class);
-        req.setProvisionedThroughput(new ProvisionedThroughput(2L,2L));
+		req.setProvisionedThroughput(new ProvisionedThroughput(2L,2L));
 		return Results.ok(client.createTable(req));
 	}
 }

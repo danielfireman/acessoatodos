@@ -7,7 +7,8 @@ import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.whoops.Whoops;
 
-import com.acessoatodos.acessibility.AcessibilityTableResource;
+import com.acessoatodos.places.PlacesTableResource;
+import com.acessoatodos.dynamodb.DynamoDbModule;
 import com.acessoatodos.places.PlacesResource;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
@@ -20,12 +21,15 @@ import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
  */
 public class App extends Jooby {
 	{
-		// Jooby modules installation.
+		// Jooby modules.
 		use(new Jackson());
+
+		// Acessoatodos modules.
+		use(new DynamoDbModule());
 
 		// Resources from acessoatodos.
 		use(PlacesResource.class);
-		use(AcessibilityTableResource.class);
+		use(PlacesTableResource.class);
 
 		// TODO(danielfireman): Endpoint addresses must be constants.
 		// Static routes.

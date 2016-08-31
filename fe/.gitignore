@@ -17,6 +17,7 @@ target/
 
 # Intelij stuff
 .idea/
+.aws/
 *.iml
 *.class
 

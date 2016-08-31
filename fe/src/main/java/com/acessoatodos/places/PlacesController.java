@@ -1,10 +1,10 @@
 package com.acessoatodos.places;
 
 
-import java.util.List;
-
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
+
+import java.util.List;
 
 /**
  * This class is responsible to interact with external API, database and return view object. */
@@ -33,4 +33,5 @@ class PlacesController {
         }
         return Lists.newArrayList();
     }
+
 }

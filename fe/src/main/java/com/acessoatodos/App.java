@@ -2,11 +2,14 @@ package com.acessoatodos;
 
 import org.jooby.Jooby;
 import org.jooby.Results;
+import org.jooby.aws.Aws;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.whoops.Whoops;
 
+import com.acessoatodos.acessibility.AcessibilityTableResource;
 import com.acessoatodos.places.PlacesResource;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
@@ -22,6 +25,7 @@ public class App extends Jooby {
 
 		// Resources from acessoatodos.
 		use(PlacesResource.class);
+		use(AcessibilityTableResource.class);
 
 		// TODO(danielfireman): Endpoint addresses must be constants.
 		// Static routes.
@@ -37,7 +41,7 @@ public class App extends Jooby {
 			// Pretty page showing errors in development mode.
 			use(new Whoops());
 
-			// When in dev, enable metrics collection.
+			// Enable metrics collection.
 			use(new Metrics()
 					.request()
 					.threadDump()
@@ -45,6 +49,9 @@ public class App extends Jooby {
 					.metric("threads", new ThreadStatesGaugeSet())
 					.metric("gc", new GarbageCollectorMetricSet())
 					.metric("fs", new FileDescriptorRatioGauge()));
+			
+			// TODO(danielfireman): Move the db endpoint to a flag.
+			use(new Aws().with(creds -> new AmazonDynamoDBClient(creds).withEndpoint("http://localhost:8000")));
 		});
 
 	}

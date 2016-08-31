@@ -15,7 +15,7 @@ import com.google.inject.Inject;
 @Path("/places")
 @Consumes("json")
 @Produces("json")
-public class PlacesResource {
+class PlacesResource {
 	private PlacesController controller;
 	@Inject
 	PlacesResource(PlacesController controller) {

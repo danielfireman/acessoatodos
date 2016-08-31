@@ -2,15 +2,12 @@ package com.acessoatodos;
 
 import org.jooby.Jooby;
 import org.jooby.Results;
-import org.jooby.aws.Aws;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.whoops.Whoops;
 
-import com.acessoatodos.places.PlacesTableResource;
-import com.acessoatodos.dynamodb.DynamoDbModule;
-import com.acessoatodos.places.PlacesResource;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.acessoatodos.aws.AwsModule;
+import com.acessoatodos.places.PlacesModule;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
@@ -25,11 +22,8 @@ public class App extends Jooby {
 		use(new Jackson());
 
 		// Acessoatodos modules.
-		use(new DynamoDbModule());
-
-		// Resources from acessoatodos.
-		use(PlacesResource.class);
-		use(PlacesTableResource.class);
+		use(new PlacesModule(this));
+		use(new AwsModule(this));
 
 		// TODO(danielfireman): Endpoint addresses must be constants.
 		// Static routes.
@@ -55,7 +49,7 @@ public class App extends Jooby {
 					.metric("fs", new FileDescriptorRatioGauge()));
 			
 			// TODO(danielfireman): Move the db endpoint to a flag.
-			use(new Aws().with(creds -> new AmazonDynamoDBClient(creds).withEndpoint("http://localhost:8000")));
+			//use(new Aws().with(creds -> new AmazonDynamoDBClient(creds).withEndpoint("http://localhost:8000")));
 		});
 
 	}

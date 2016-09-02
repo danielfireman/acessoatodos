@@ -1,3 +1,3 @@
 export class App {
-  message = 'Hello World!-Bruno Butão';
+  title = 'Bem-vindo ao acessoatodos';
 }

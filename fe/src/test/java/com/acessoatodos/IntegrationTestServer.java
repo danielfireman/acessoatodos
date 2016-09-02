@@ -15,7 +15,7 @@ public class IntegrationTestServer extends ExternalResource {
 
 	public IntegrationTestServer(final Jooby app) {
 		this.app = app;
-		
+
 		// A little bit of resiliency: try a few times before bail out.
 		for (int i = 0; i < 3; i++) {
 			try (ServerSocket socket = new ServerSocket(0)) {
@@ -37,6 +37,7 @@ public class IntegrationTestServer extends ExternalResource {
 		// was not working.
 		System.setProperty("application.port", Integer.toString(this.port));
 		System.setProperty("server.join", "false");
+		System.setProperty("application.env", "test");
 		try {
 			this.socket.close();
 		} catch (IOException ignored) {			

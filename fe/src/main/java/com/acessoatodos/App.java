@@ -25,15 +25,11 @@ public class App extends Jooby {
 		use(new PlacesModule(this));
 		use(new AwsModule(this));
 
-		// TODO(danielfireman): Endpoint addresses must be constants.
 		// Static routes.
-		assets("/favicon.ico", "favicon.ico");
+		assets("/", "index.html");
+		assets("/**");
 		get("/ping", () -> Results.ok());
-
-		// Temporarily redirecting to github project page while we don't have a
-		// landing page.
-		get("/*", () -> Results.tempRedirect("https://github.com/danielfireman/acessoatodos"));
-
+		
 		// Stuff that is enabled only in dev.
 		on("dev", () -> {
 			// Pretty page showing errors in development mode.

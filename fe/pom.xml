@@ -108,16 +108,26 @@
     	<groupId>com.amazonaws</groupId>
         <artifactId>aws-java-sdk-dynamodb</artifactId>
         <version>1.11.29</version>
-    </dependency>    
+    </dependency>
   </dependencies>
   <build>
     <plugins>
-      <!-- Build fat jar -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-      </plugin>
+      	<!-- Build fat jar -->
+      	<plugin>
+	        <groupId>org.apache.maven.plugins</groupId>
+	        <artifactId>maven-shade-plugin</artifactId>
+      	</plugin>
+      	<plugin>
+		  	<groupId>org.jooby</groupId>
+		   	<artifactId>jooby-maven-plugin</artifactId>
+		   	<executions>
+		    	<execution>
+		       		<goals>
+		         		<goal>assets</goal>
+		       		</goals>
+		     	</execution>
+		   	</executions>
+ 		</plugin>
     </plugins>
   </build>
-
 </project>

@@ -21,22 +21,22 @@ import com.google.inject.Inject;
 @Consumes("json")
 @Produces("json")
 public class PlacesTableResource {
-	private DynamoDBMapper mapper;
-	private DynamoDB db;
+    private DynamoDBMapper mapper;
+    private DynamoDB db;
 
-	@Inject
-	PlacesTableResource(DynamoDB db, DynamoDBMapper mapper) {
-		this.db = db;
-		this.mapper = mapper;
-	}
+    @Inject
+    PlacesTableResource(DynamoDB db, DynamoDBMapper mapper) {
+        this.db = db;
+        this.mapper = mapper;
+    }
 
-	// Creates acessibility table.
-	@PUT
-	public Result put() throws InterruptedException {
-		CreateTableRequest req = mapper.generateCreateTableRequest(PlacesTableModel.class);
-		req.setProvisionedThroughput(new ProvisionedThroughput(2L,2L));
-		Table table = db.createTable(req);
-		table.waitForActive();
-		return Results.ok(table.toString());
-	}
+    // Creates acessibility table.
+    @PUT
+    public Result put() throws InterruptedException {
+        CreateTableRequest req = mapper.generateCreateTableRequest(PlacesTableModel.class);
+        req.setProvisionedThroughput(new ProvisionedThroughput(2L, 2L));
+        Table table = db.createTable(req);
+        table.waitForActive();
+        return Results.ok(table.toString());
+    }
 }

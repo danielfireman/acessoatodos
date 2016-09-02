@@ -1,5 +1,6 @@
 package com.acessoatodos;
 
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import org.jooby.Jooby;
 import org.jooby.Results;
 import org.jooby.aws.Aws;

@@ -30,4 +30,5 @@ target/
 
 npm-debug.log
 
+# Files generated from webapp deployment
 public/scripts/*-bundle.js

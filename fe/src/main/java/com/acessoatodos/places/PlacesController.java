@@ -14,7 +14,7 @@ class PlacesController {
     private GooglePlaces googlePlaces;
     private DynamoDBMapper mapper;
 
-    private final String PREFIX_GM_BAR = "bm/";
+    private final String PREFIX_GM_BAR = "gm/";
 
     @Inject
     PlacesController(GooglePlaces googlePlaces, DynamoDBMapper mapper) {
@@ -44,10 +44,8 @@ class PlacesController {
         String combinedPlaceId = PREFIX_GM_BAR + placeId;
 
         PlacesTableModel placesTableModel = new PlacesTableModel();
-
         placesTableModel.setPlaceId(combinedPlaceId);
         placesTableModel.setAcessibilities(new HashSet(acessibilities));
-
         mapper.save(placesTableModel);
 
         return placesTableModel;

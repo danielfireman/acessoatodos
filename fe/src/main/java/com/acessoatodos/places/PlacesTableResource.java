@@ -1,11 +1,9 @@
 package com.acessoatodos.places;
 
+import com.amazonaws.services.dynamodbv2.model.TableDescription;
 import org.jooby.Result;
 import org.jooby.Results;
-import org.jooby.mvc.DELETE;
-import org.jooby.mvc.PUT;
-import org.jooby.mvc.Path;
-import org.jooby.mvc.Produces;
+import org.jooby.mvc.*;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
@@ -21,6 +19,8 @@ import com.google.inject.Inject;
 @Path("/placestable")
 @Produces("json")
 public class PlacesTableResource {
+    private static final long READ_CAPACITY_UNITS = 2L;
+    private static final long WRITE_CAPACITY_UNITS = 2L;
     private DynamoDBMapper mapper;
     private DynamoDB db;
 
@@ -34,7 +34,7 @@ public class PlacesTableResource {
     @PUT
     public Result put() throws InterruptedException {
         CreateTableRequest req = mapper.generateCreateTableRequest(PlacesTableModel.class);
-        req.setProvisionedThroughput(new ProvisionedThroughput(2L, 2L));
+        req.setProvisionedThroughput(new ProvisionedThroughput(READ_CAPACITY_UNITS, WRITE_CAPACITY_UNITS));
         Table table = db.createTable(req);
         table.waitForActive();
         return Results.ok(table.toString());
@@ -46,5 +46,11 @@ public class PlacesTableResource {
         DeleteTableResult res = table.delete();
         table.waitForDelete();
         return Results.ok(res);
+    }
+
+    @GET
+    public Result get() {
+        TableDescription tableDesc = db.getTable(PlacesTableModel.TABLE_NAME).describe();
+        return Results.json(tableDesc);
     }
 }

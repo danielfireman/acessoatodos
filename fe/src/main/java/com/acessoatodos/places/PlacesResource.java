@@ -1,13 +1,13 @@
 package com.acessoatodos.places;
 
+import com.google.inject.Inject;
 import org.jooby.Result;
 import org.jooby.Results;
-import org.jooby.mvc.Consumes;
-import org.jooby.mvc.GET;
-import org.jooby.mvc.Path;
-import org.jooby.mvc.Produces;
+import org.jooby.mvc.*;
 
-import com.google.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This class is specific to define routes of resource
@@ -16,23 +16,30 @@ import com.google.inject.Inject;
 @Consumes("json")
 @Produces("json")
 public class PlacesResource {
-	private PlacesController controller;
-	@Inject
-	PlacesResource(PlacesController controller) {
-		this.controller = controller;
-	}
-	
-	/**
-	 * Method used to retrieve a list of places
-	 * @param lat latitude used by retrive places around.
-	 * @param lng longitude used by retrive places around.
-	 * @return List<PlaceVO>
-	 */
-	@GET
-	public Result get(Float lat, Float lng) {
-		// TODO(heiner): Revisit Exception strategy.
-		// TODO(heiner): Check for errors in response.
-		return Results.json(controller.getNearbyPlaces(lat, lng));
-	}
+    private PlacesController controller;
 
+    @Inject
+    PlacesResource(PlacesController controller) {
+        this.controller = controller;
+    }
+
+    /**
+     * Method used to retrieve a list of places
+     *
+     * @param lat latitude used by retrive places around.
+     * @param lng longitude used by retrive places around.
+     * @return List<PlaceVO>
+     */
+    @GET
+    public Result get(Float lat, Float lng) {
+        // TODO(heiner): Revisit Exception strategy.
+        // TODO(heiner): Check for errors in response.
+        return Results.json(controller.getNearbyPlaces(lat, lng));
+    }
+
+    @PUT
+    @Path("/:placeId")
+    public Result insert(String placeId, @Body List<Integer> acessibilities) {
+        return Results.json(controller.insertPlace(placeId, acessibilities));
+    }
 }

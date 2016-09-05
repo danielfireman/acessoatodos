@@ -75,20 +75,17 @@
             <artifactId>httpclient</artifactId>
             <version>4.5.2</version>
         </dependency>
-
         <!-- Jackson  -->
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby-jackson</artifactId>
         </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.8</version>
         </dependency>
-
         <!-- Metrics -->
         <dependency>
             <groupId>org.jooby</groupId>
@@ -103,17 +100,10 @@
 
         <!-- AWS stuff -->
         <dependency>
-            <groupId>org.jooby</groupId>
-            <artifactId>jooby-aws</artifactId>
-            <version>1.0.0.CR7</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-core</artifactId>
             <version>1.11.29</version>
         </dependency>
-        
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-dynamodb</artifactId>

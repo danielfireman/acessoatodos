@@ -2,10 +2,11 @@ package com.acessoatodos.places;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class is responsible to interact with external API, database and return view object.
@@ -40,12 +41,12 @@ class PlacesController {
         return Lists.newArrayList();
     }
 
-    public PlacesTableModel insertOrUpdatePlace(String placeId, List<Integer> acessibilities) {
+    public PlacesTableModel insertOrUpdatePlace(String placeId, Set<Integer> acessibilities) {
         String combinedPlaceId = PREFIX_GM_BAR + placeId;
 
         PlacesTableModel placesTableModel = new PlacesTableModel();
-        placesTableModel.setPlaceId(combinedPlaceId);
-        placesTableModel.setAcessibilities(new HashSet(acessibilities));
+        placesTableModel.placeId = combinedPlaceId;
+        placesTableModel.acessibilities = Sets.newHashSet(acessibilities);
         mapper.save(placesTableModel);
 
         return placesTableModel;

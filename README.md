@@ -8,9 +8,9 @@ Marcar espaços públicos e privados que oferecem equidade de acesso.
 * Design: em andamento
 
 # Contribuidores
-* [Daniel Fireman](github.com/danielfireman): projeto, arquitetura, desenvolvimento
+* [Daniel Fireman](github.com/danielfireman): projeto, arquitetura e desenvolvimento
 * Erivan
-* Heiner
+* [Heiner] (github.com/Khwesten): documentação, arquitetura e desenvolvimento
 * Diego
 
 # License

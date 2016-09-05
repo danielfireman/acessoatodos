@@ -20,7 +20,7 @@ import com.google.inject.Inject;
  */
 @Path("/placestable")
 @Produces("json")
-class PlacesTableResource {
+public class PlacesTableResource {
 	private DynamoDBMapper mapper;
 	private DynamoDB db;
 

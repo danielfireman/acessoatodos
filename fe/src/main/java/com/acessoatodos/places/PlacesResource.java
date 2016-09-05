@@ -1,12 +1,11 @@
 package com.acessoatodos.places;
 
+import com.google.inject.Inject;
 import org.jooby.Result;
 import org.jooby.Results;
 import org.jooby.mvc.*;
 
-import com.google.inject.Inject;
-
-import java.util.List;
+import java.util.Set;
 
 /**
  * This class is specific to define routes of resource
@@ -38,7 +37,7 @@ public class PlacesResource {
 
     @PUT
     @Path("/:placeId")
-    public Result insertUpdate(String placeId, @Body List<Integer> acessibilities) {
+    public Result insertUpdate(String placeId, @Body Set<Integer> acessibilities) {
         return Results.json(controller.insertOrUpdatePlace(placeId, acessibilities));
     }
 

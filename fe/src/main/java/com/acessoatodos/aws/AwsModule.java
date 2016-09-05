@@ -11,13 +11,14 @@ import com.typesafe.config.Config;
  * Ideally, this should be the only public class in this package.
  */
 public class AwsModule implements Jooby.Module {
-	private Jooby app;
-	public AwsModule(Jooby app) {
-		this.app = app;		
-	}
+    private Jooby app;
 
-	@Override
-	public void configure(Env env, Config conf, Binder binder) {
-		app.use(new DynamoDbModule());
-	}
+    public AwsModule(Jooby app) {
+        this.app = app;
+    }
+
+    @Override
+    public void configure(Env env, Config conf, Binder binder) {
+        app.use(new DynamoDbModule());
+    }
 }

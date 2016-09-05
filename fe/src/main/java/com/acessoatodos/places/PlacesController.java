@@ -7,19 +7,20 @@ import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 /**
- * This class is responsible to interact with external API, database and return view object. */
+ * This class is responsible to interact with external API, database and return view object.
+ */
 class PlacesController {
-	private GooglePlaces googlePlaces;
+    private GooglePlaces googlePlaces;
 
-	@Inject
+    @Inject
     PlacesController(GooglePlaces googlePlaces) {
-		this.googlePlaces = googlePlaces;
-	}
+        this.googlePlaces = googlePlaces;
+    }
 
     List<PlaceVO> getNearbyPlaces(float latitude, float longitude) {
-    	GooglePlacesResponse response = googlePlaces.nearbySearch(latitude, longitude);
+        GooglePlacesResponse response = googlePlaces.nearbySearch(latitude, longitude);
         if (response.results != null) {
-        	List<PlaceVO> places = Lists.newArrayListWithCapacity(response.results.size());
+            List<PlaceVO> places = Lists.newArrayListWithCapacity(response.results.size());
             for (GooglePlacesResponse.Item item : response.results) {
                 PlaceVO placeVO = new PlaceVO();
                 placeVO.placeId = item.place_id;

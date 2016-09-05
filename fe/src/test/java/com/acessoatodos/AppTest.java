@@ -6,14 +6,14 @@ import org.junit.Rule;
 import org.junit.Test;
 
 public class AppTest {
-	@ClassRule
-	public static IntegrationTestServer app = new IntegrationTestServer(new App());
+    @ClassRule
+    public static IntegrationTestServer app = new IntegrationTestServer(new App());
 
-	@Rule
-	public Client server = new Client(app.getAdress());
+    @Rule
+    public Client server = new Client(app.getAdress());
 
-	@Test
-	public void ping() throws Exception {
-		server.get("/ping").expect(200);
-	}
+    @Test
+    public void ping() throws Exception {
+        server.get("/ping").expect(200);
+    }
 }

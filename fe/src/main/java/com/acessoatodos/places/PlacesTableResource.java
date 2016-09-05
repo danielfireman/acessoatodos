@@ -21,30 +21,30 @@ import com.google.inject.Inject;
 @Path("/placestable")
 @Produces("json")
 public class PlacesTableResource {
-	private DynamoDBMapper mapper;
-	private DynamoDB db;
+    private DynamoDBMapper mapper;
+    private DynamoDB db;
 
-	@Inject
-	PlacesTableResource(DynamoDB db, DynamoDBMapper mapper) {
-		this.db = db;
-		this.mapper = mapper;
-	}
+    @Inject
+    PlacesTableResource(DynamoDB db, DynamoDBMapper mapper) {
+        this.db = db;
+        this.mapper = mapper;
+    }
 
-	// Creates places table.
-	@PUT
-	public Result put() throws InterruptedException {
-		CreateTableRequest req = mapper.generateCreateTableRequest(PlacesTableModel.class);
-		req.setProvisionedThroughput(new ProvisionedThroughput(2L,2L));
-		Table table = db.createTable(req);
-		table.waitForActive();
-		return Results.ok(table.toString());
-	}
-	
-	@DELETE
-	public Result delete() throws InterruptedException {
-		Table table = db.getTable(PlacesTableModel.TABLE_NAME);
-		DeleteTableResult res = table.delete();
-		table.waitForDelete();
-		return Results.ok(res);
-	}
+    // Creates places table.
+    @PUT
+    public Result put() throws InterruptedException {
+        CreateTableRequest req = mapper.generateCreateTableRequest(PlacesTableModel.class);
+        req.setProvisionedThroughput(new ProvisionedThroughput(2L, 2L));
+        Table table = db.createTable(req);
+        table.waitForActive();
+        return Results.ok(table.toString());
+    }
+
+    @DELETE
+    public Result delete() throws InterruptedException {
+        Table table = db.getTable(PlacesTableModel.TABLE_NAME);
+        DeleteTableResult res = table.delete();
+        table.waitForDelete();
+        return Results.ok(res);
+    }
 }

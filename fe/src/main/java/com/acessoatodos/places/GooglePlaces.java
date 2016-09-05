@@ -16,7 +16,7 @@ class GooglePlaces {
     /**
      * Key of API registered at google
      */
-	// TODO(heiner): Add a check that breaks the application if this key is not set.
+    // TODO(heiner): Add a check that breaks the application if this key is not set.
     private static final String KEY_GOOGLE_PLACES = System.getenv().get("KEY_GOOGLE_PLACES");
 
     /**
@@ -24,14 +24,14 @@ class GooglePlaces {
      */
     private final Integer RADIUS_RANGE_1000_METERS = 1000;
 
-	private ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-	@Inject
+    @Inject
     public GooglePlaces(ObjectMapper mapper) {
-		this.mapper = mapper;
-	}
+        this.mapper = mapper;
+    }
 
-	GooglePlacesResponse nearbySearch(float latitude, float longitude) {
+    GooglePlacesResponse nearbySearch(float latitude, float longitude) {
         String placeUrlToSearch =
                 "https://maps.googleapis.com/maps/api/place/nearbysearch/json" +
                         "?location=" + latitude + "," + longitude +
@@ -60,17 +60,17 @@ class GooglePlaces {
         } catch (IOException e) {
             throw new Err(Status.SERVER_ERROR, "Erro na leitura da resposta do google places.");
         } finally {
-        	try {
-				reader.close();
-			} catch (IOException e) {
-				// Print exception, but does not error request.
-				e.printStackTrace();
-			}
+            try {
+                reader.close();
+            } catch (IOException e) {
+                // Print exception, but does not error request.
+                e.printStackTrace();
+            }
         }
         try {
-        	return mapper.readValue(message.toString(), GooglePlacesResponse.class);
+            return mapper.readValue(message.toString(), GooglePlacesResponse.class);
         } catch (IOException e) {
-        	e.printStackTrace();
+            e.printStackTrace();
             throw new Err(Status.UNPROCESSABLE_ENTITY, "Erro na conversão dos dados do google places.");
         }
     }

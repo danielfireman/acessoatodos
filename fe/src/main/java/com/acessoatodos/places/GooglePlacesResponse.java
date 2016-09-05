@@ -11,32 +11,32 @@ import com.google.common.collect.Lists;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class GooglePlacesResponse {
-	// TODO(heiner): Remove unused fields.
-	@JsonProperty List<String> html_attributions;
-	@JsonProperty List<Item> results = Lists.newArrayList();
-	@JsonProperty String status;
-	@JsonProperty String next_page_token;
-	
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	static class Item {
-		@JsonProperty GooglePlacesGeometry geometry;
-		@JsonProperty String name;
-		@JsonProperty String icon;
-		@JsonProperty String id;
-		@JsonProperty String place_id;
-		@JsonProperty String scope;
-		@JsonProperty String reference;
-		@JsonProperty String vicinity;
-		@JsonProperty List<String> types;
-	}
+    // TODO(heiner): Remove unused fields.
+    @JsonProperty List<String> html_attributions;
+    @JsonProperty List<Item> results = Lists.newArrayList();
+    @JsonProperty String status;
+    @JsonProperty String next_page_token;
 
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	static class GooglePlacesGeometry {
-		@JsonProperty GooglePlacesLocation location;
-	}
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class Item {
+        @JsonProperty GooglePlacesGeometry geometry;
+        @JsonProperty String name;
+        @JsonProperty String icon;
+        @JsonProperty String id;
+        @JsonProperty String place_id;
+        @JsonProperty String scope;
+        @JsonProperty String reference;
+        @JsonProperty String vicinity;
+        @JsonProperty List<String> types;
+    }
 
-	static class GooglePlacesLocation {
-		@JsonProperty float lat;
-		@JsonProperty float lng;
-	}
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    static class GooglePlacesGeometry {
+        @JsonProperty GooglePlacesLocation location;
+    }
+
+    static class GooglePlacesLocation {
+        @JsonProperty float lat;
+        @JsonProperty float lng;
+    }
 }

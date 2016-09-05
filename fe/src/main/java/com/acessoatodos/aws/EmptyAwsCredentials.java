@@ -3,17 +3,17 @@ package com.acessoatodos.aws;
 import com.amazonaws.auth.AWSCredentials;
 
 /**
- * <p>Provides null AWS credentials. Created to use in cases like
+ * Provides null AWS credentials. Created to use in cases like
  * local DynamoDB.
  */
 class EmptyAwsCredentials implements AWSCredentials {
-	@Override
-	public String getAWSAccessKeyId() {
-		return "";
-	}
+    @Override
+    public String getAWSAccessKeyId() {
+        return "";
+    }
 
-	@Override
-	public String getAWSSecretKey() {
-		return "";
-	}
+    @Override
+    public String getAWSSecretKey() {
+        return "";
+    }
 }

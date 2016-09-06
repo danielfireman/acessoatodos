@@ -127,11 +127,13 @@
             <groupId>com.amazonaws</groupId>
             <artifactId>DynamoDBLocal</artifactId>
             <version>1.10.5.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <version>9.4.0.M1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.almworks.sqlite4java</groupId>

@@ -1,17 +1,16 @@
 package com.acessoatodos;
 
-import org.jooby.Jooby;
-import org.jooby.Results;
-import org.jooby.json.Jackson;
-import org.jooby.metrics.Metrics;
-import org.jooby.whoops.Whoops;
-
-import com.acessoatodos.aws.AwsModule;
+import com.acessoatodos.aws.DynamoDbModule;
 import com.acessoatodos.places.PlacesModule;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import org.jooby.Jooby;
+import org.jooby.Results;
+import org.jooby.json.Jackson;
+import org.jooby.metrics.Metrics;
+import org.jooby.whoops.Whoops;
 
 /**
  * Entry point of FE server.
@@ -23,7 +22,7 @@ public class App extends Jooby {
 
         // Acessoatodos modules.
         use(new PlacesModule(this));
-        use(new AwsModule(this));
+        use(new DynamoDbModule());
 
         // Static routes.
         assets("/", "index.html");

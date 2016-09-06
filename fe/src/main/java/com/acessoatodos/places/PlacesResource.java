@@ -40,5 +40,4 @@ public class PlacesResource {
     public Result insertUpdate(String placeId, @Body Set<Integer> acessibilities) {
         return Results.json(controller.insertOrUpdatePlace(placeId, acessibilities));
     }
-
 }

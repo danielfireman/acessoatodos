@@ -3,8 +3,6 @@ package com.acessoatodos.places;
 import java.util.List;
 import java.util.Set;
 
-import com.acessoatodos.acessibility.AcessibilityVO;
-
 import lombok.Getter;
 
 /**

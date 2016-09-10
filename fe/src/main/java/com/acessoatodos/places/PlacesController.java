@@ -1,9 +1,12 @@
 package com.acessoatodos.places;
 
+import com.acessoatodos.acessibility.Accessibility;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
+import org.jooby.Err;
+import org.jooby.Status;
 
 import java.util.*;
 
@@ -14,7 +17,7 @@ class PlacesController {
     private GooglePlaces googlePlaces;
     private DynamoDBMapper mapper;
 
-    private final String PREFIX_GM_BAR = "gm|";
+    private final String PREFIX_GM_PIPE = "gm|";
 
     @Inject
     PlacesController(GooglePlaces googlePlaces, DynamoDBMapper mapper) {
@@ -31,7 +34,7 @@ class PlacesController {
             List<PlaceVO> places = Lists.newArrayListWithCapacity(response.results.size());
 
             for (GooglePlacesResponse.Item item : response.results) {
-                String placeId = PREFIX_GM_BAR + item.place_id;
+                String placeId = PREFIX_GM_PIPE + item.place_id;
 
                 PlaceVO placeVO = new PlaceVO();
                 placeVO.placeId = placeId;
@@ -73,6 +76,12 @@ class PlacesController {
     public PlaceTableModel insertOrUpdatePlace(String placeId, Set<Integer> acessibilities) {
         String combinedPlaceId = placeId;
 
+        for (Integer accessibility : acessibilities) {
+            if(!checkAccessibility(accessibility)) {
+                throw new Err(Status.BAD_REQUEST, "Acessibilidade (" + accessibility +") não contida no sistema.");
+            }
+        }
+
         PlaceTableModel placeTableModel = new PlaceTableModel();
         placeTableModel.placeId = combinedPlaceId;
         placeTableModel.acessibilities = Sets.newHashSet(acessibilities);
@@ -97,5 +106,13 @@ class PlacesController {
         }
 
         return placeVOs;
+    }
+
+    private boolean checkAccessibility(Integer externalValue) {
+        for (Accessibility accessibility : Accessibility.values()) {
+            if (externalValue == accessibility.getValue()) return true;
+        }
+
+        return false;
     }
 }

@@ -14,7 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @DynamoDBTable(tableName = "places")
-public class PlacesTableModel {
+public class PlaceTableModel {
     static final String TABLE_NAME = "places";
 
     @DynamoDBHashKey

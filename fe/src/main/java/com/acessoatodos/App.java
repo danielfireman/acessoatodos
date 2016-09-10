@@ -6,11 +6,17 @@ import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
 import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
+import com.google.inject.Inject;
+import com.typesafe.config.Config;
 import org.jooby.Jooby;
 import org.jooby.Results;
+import org.jooby.handlers.Cors;
+import org.jooby.handlers.CorsHandler;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.whoops.Whoops;
+
+import javax.inject.Named;
 
 /**
  * Entry point of FE server.
@@ -19,6 +25,7 @@ public class App extends Jooby {
     {
         // Jooby modules.
         use(new Jackson());
+        use((Config) new CorsHandler());
 
         // Acessoatodos modules.
         use(new PlacesModule(this));

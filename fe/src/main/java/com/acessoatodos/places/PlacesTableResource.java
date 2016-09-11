@@ -33,7 +33,7 @@ public class PlacesTableResource {
     // Creates places table.
     @PUT
     public Result put() throws InterruptedException {
-        CreateTableRequest req = mapper.generateCreateTableRequest(PlaceTableModel.class);
+        CreateTableRequest req = mapper.generateCreateTableRequest(PlacesTableModel.class);
         req.setProvisionedThroughput(new ProvisionedThroughput(READ_CAPACITY_UNITS, WRITE_CAPACITY_UNITS));
         Table table = db.createTable(req);
         table.waitForActive();
@@ -42,7 +42,7 @@ public class PlacesTableResource {
 
     @DELETE
     public Result delete() throws InterruptedException {
-        Table table = db.getTable(PlaceTableModel.PLACES_TABLE_NAME);
+        Table table = db.getTable(PlacesTableModel.PLACES_TABLE_NAME);
         DeleteTableResult res = table.delete();
         table.waitForDelete();
         return Results.ok(res);
@@ -50,7 +50,7 @@ public class PlacesTableResource {
 
     @GET
     public Result get() {
-        TableDescription tableDesc = db.getTable(PlaceTableModel.PLACES_TABLE_NAME).describe();
+        TableDescription tableDesc = db.getTable(PlacesTableModel.PLACES_TABLE_NAME).describe();
         return Results.json(tableDesc);
     }
 }

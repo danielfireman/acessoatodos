@@ -28,7 +28,7 @@ class PlacesController {
     List<PlaceVO> getNearbyPlaces(float latitude, float longitude) {
         GooglePlacesResponse response = googlePlaces.nearbySearch(latitude, longitude);
 
-        ArrayList<PlaceTableModel> placesTableModel = Lists.newArrayList();
+        ArrayList<PlacesTableModel> placesTableModel = Lists.newArrayList();
 
         if (response.results != null) {
             List<PlaceVO> places = Lists.newArrayListWithCapacity(response.results.size());
@@ -44,7 +44,7 @@ class PlacesController {
                 placeVO.types = item.types;
                 places.add(placeVO);
 
-                PlaceTableModel placeTableModel = new PlaceTableModel();
+                PlacesTableModel placeTableModel = new PlacesTableModel();
                 placeTableModel.setPlaceId(placeId);
 
                 placesTableModel.add(placeTableModel);
@@ -57,7 +57,7 @@ class PlacesController {
         return Lists.newArrayList();
     }
 
-    public PlaceTableModel insertOrUpdatePlace(String placeId, Set<Integer> acessibilities) {
+    public PlacesTableModel insertOrUpdatePlace(String placeId, Set<Integer> acessibilities) {
         String combinedPlaceId = placeId;
 
         for (Integer accessibility : acessibilities) {
@@ -66,23 +66,23 @@ class PlacesController {
             }
         }
 
-        PlaceTableModel placeTableModel = new PlaceTableModel();
-        placeTableModel.placeId = combinedPlaceId;
-        placeTableModel.acessibilities = Sets.newHashSet(acessibilities);
-        mapper.save(placeTableModel);
+        PlacesTableModel placesTableModel = new PlacesTableModel();
+        placesTableModel.placeId = combinedPlaceId;
+        placesTableModel.acessibilities = Sets.newHashSet(acessibilities);
+        mapper.save(placesTableModel);
 
-        return placeTableModel;
+        return placesTableModel;
     }
 
-    private List<Object> searcAccessibilityOnDbByPlacesIds(List<PlaceTableModel> placesTableModelToSearch) {
+    private List<Object> searcAccessibilityOnDbByPlacesIds(List<PlacesTableModel> placesTableModelToSearch) {
         Map<String, List<Object>> stringListMap = mapper.batchLoad(placesTableModelToSearch);
 
-        return stringListMap.get(PlaceTableModel.PLACES_TABLE_NAME);
+        return stringListMap.get(PlacesTableModel.PLACES_TABLE_NAME);
     }
 
     private List<PlaceVO> mergeAcessibilities(List<PlaceVO> placeVOs, List<Object> placesTableModel) {
         for (Object object : placesTableModel) {
-            PlaceTableModel placeTableModel = (PlaceTableModel) object;
+            PlacesTableModel placeTableModel = (PlacesTableModel) object;
             for (PlaceVO placeVO : placeVOs) {
                 if (placeVO.getPlaceId().equals(placeTableModel.getPlaceId())) {
                     placeVO.acessibilities = placeTableModel.getAcessibilities();

@@ -1,6 +1,7 @@
 *.class
 log/*
 native-libs/
+public/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/

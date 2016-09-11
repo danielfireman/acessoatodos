@@ -131,6 +131,37 @@
             "path": "../node_modules/aurelia-testing/dist/amd",
             "main": "aurelia-testing",
             "env": "dev"
+          },
+          "jquery",
+          {
+            "name": "bootstrap",
+            "path": "../node_modules/bootstrap/dist",
+            "main": "js/bootstrap.min",
+            "deps": ["jquery"],
+            "exports": "$",
+            "resources": [
+              "css/bootstrap.css"
+            ]
+          },
+          {
+            "name": "interact-js",
+            "path": "../node_modules/interact-js",
+            "main": "interact"
+          },
+          {
+            "name": "jquery-smooth-scroll",
+            "path": "../node_modules/jquery-smooth-scroll",
+            "main": "jquery.smooth-scroll.min"
+          },
+          {
+            "name": "jquery-easing",
+            "path": "../node_modules/jquery-easing",
+            "main": "jquery.easing.1.3.js"
+          },
+          {
+            "name": "retina.js",
+            "path": "../node_modules/retina.js",
+            "main": "src/retina.js"
           }
         ]
       }

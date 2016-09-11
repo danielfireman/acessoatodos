@@ -1,5 +1,6 @@
 #!/bin/bash
 
-au build --env prod
+#au build --env prod
 cp index.html ../public
-cp scripts/*.js ../public/scripts
+cp -r scripts/ ../public/
+cp -r src/css/ ../public/

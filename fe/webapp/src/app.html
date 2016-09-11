@@ -1,25 +1,64 @@
 <template>
-  <h1>${title}</h1>
 
-<p>Marcar espaços públicos e privados que oferecem equidade de acesso.</p>
+  <require from="bootstrap/css/bootstrap.css"></require>
+  <require from="./css/main.css"></require>
+  <require from="./css/icomoon.css"></require>
+  <require from="./css/animate-custom.css"></require>
 
-<blockquote>
-<p>Status: em fluxo</p>
-</blockquote>
+  <div id="navbar-main">
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon icon-shield" style="font-size:30px; color:#3498db;"></span>
+          </button>
+          <a class="navbar-brand hidden-xs hidden-sm" href="#home"><span class="icon icon-shield"
+                                                                         style="font-size:18px; color:#3498db;"></span></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="#home" class="smoothScroll">Home</a></li>
+            <li><a href="#team" class="smoothScroll"> Team</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+  </div>
 
-<ul>
-<li>Motivação e projeto inicial <a href="https://docs.google.com/document/d/1354NzpDpoSQ86IETQMn9ENTq6NO2OGd1qITULhmLjmY">aqui</a></li>
-<li><a href="https://github.com/danielfireman/acessoatodos">Repositório Github</a></li>
-</ul>
+  <!-- ==== ABOUT ==== -->
+  <div class="container" id="home" name="home">
+    <div class="row white">
+      <br>
+      <h1 class="centered">Bem-vindo ao acessoatodos</h1>
+      <hr>
+      <p>Marcar espaços públicos e privados que oferecem equidade de acesso.</p>
+      <ul>
+        <li>Motivação e projeto inicial <a
+          href="https://docs.google.com/document/d/1354NzpDpoSQ86IETQMn9ENTq6NO2OGd1qITULhmLjmY">aqui</a></li>
+        <li><a href="https://github.com/danielfireman/acessoatodos">Repositório Github</a></li>
+      </ul>
+    </div><!-- row -->
+  </div><!-- container -->
 
-<h2>Contribuidores</h2>
-<ul>
-<li><a href="/danielfireman/acessoatodos/blob/master/github.com/danielfireman">Daniel Fireman</a>: projeto, arquitetura, desenvolvimento</li>
-<li>Erivan</li>
-<li>Heiner</li>
-</ul>
+  <!-- ==== TEAM MEMBERS ==== -->
+  <div class="container" id="team" name="team">
+    <br>
+    <div class="row white centered">
+      <h1 class="centered">Contribuidores</h1>
+      <hr>
+      <h4>
+        <a href="/danielfireman/acessoatodos/blob/master/github.com/danielfireman">Daniel Fireman</a>
+        &nbsp;||&nbsp;
+        <a href="/danielfireman/acessoatodos/blob/master/github.com/danielfireman">Heiner</a>
+      </h4>
+    </div><!-- row -->
+    <br>
+  </div><!-- container -->
 
-<p>This project is licensed under the Apache License 2.0.</p>
-
-<p>License can be found <a href="/danielfireman/acessoatodos/blob/master/LICENSE">here</a>.</p>
+  <div id="footerwrap">
+    <div class="container">
+      <h4>acessoatodos.com - Copyright 2016</h4>
+    </div>
+  </div>
 </template>

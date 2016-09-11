@@ -1,6 +1,5 @@
 package com.acessoatodos.places;
 
-import com.acessoatodos.acessibility.Accessibility;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -18,6 +17,7 @@ class PlacesController {
     private DynamoDBMapper mapper;
 
     private final String PREFIX_GM_PIPE = "gm|";
+    private static final Map<Integer, String> accessibility;
 
     @Inject
     PlacesController(GooglePlaces googlePlaces, DynamoDBMapper mapper) {
@@ -52,23 +52,6 @@ class PlacesController {
 
             return searcAcessibilitiesOnDb(placesTableModel, places);
         }
-
-
-//        System.out.println("FindBooksPricedLessThanSpecifiedValue: Scan ProductCatalog.");
-//
-//        Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
-//        eav.put(":lat", new AttributeValue().withN(value));
-//        eav.put(":lng", new AttributeValue().withS("Book"));
-//
-//        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-//                .withFilterExpression("Price < :val1 and ProductCategory = :val2")
-//                .withExpressionAttributeValues(eav);
-//
-//        List<PlaceTableModel> scanResult = mapper.scan(PlaceTableModel.class, scanExpression);
-//
-//        for (PlaceTableModel book : scanResult) {
-//            System.out.println(book);
-//        }
 
         return Lists.newArrayList();
     }
@@ -109,10 +92,16 @@ class PlacesController {
     }
 
     private boolean checkAccessibility(Integer externalValue) {
-        for (Accessibility accessibility : Accessibility.values()) {
-            if (externalValue == accessibility.getValue()) return true;
-        }
+        return (this.accessibility.get(externalValue) != null) ? true : false;
+    }
 
-        return false;
+    static {
+        Map<Integer, String> aMap = new HashMap<>();
+        aMap.put(100, "Access ramp");
+        aMap.put(101, "Adapted WC");
+        aMap.put(102, "Elevator");
+        aMap.put(103, "Panel braile elevator");
+        aMap.put(104, "Info braile");
+        accessibility = Collections.unmodifiableMap(aMap);
     }
 }

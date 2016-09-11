@@ -28,7 +28,7 @@ class PlacesController {
     List<PlaceVO> getNearbyPlaces(float latitude, float longitude) {
         GooglePlacesResponse response = googlePlaces.nearbySearch(latitude, longitude);
 
-        ArrayList<PlaceTableModel> placesTableModel = new ArrayList();
+        ArrayList<PlaceTableModel> placesTableModel = Lists.newArrayList();
 
         if (response.results != null) {
             List<PlaceVO> places = Lists.newArrayListWithCapacity(response.results.size());
@@ -50,25 +50,9 @@ class PlacesController {
                 placesTableModel.add(placeTableModel);
             }
 
-            return searcAcessibilitiesOnDb(placesTableModel, places);
+            List<Object> accessibility = searcAccessibilityOnDbByPlacesIds(placesTableModel);
+            return mergeAcessibilities(places, accessibility);
         }
-
-
-//        System.out.println("FindBooksPricedLessThanSpecifiedValue: Scan ProductCatalog.");
-//
-//        Map<String, AttributeValue> eav = new HashMap<String, AttributeValue>();
-//        eav.put(":lat", new AttributeValue().withN(value));
-//        eav.put(":lng", new AttributeValue().withS("Book"));
-//
-//        DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
-//                .withFilterExpression("Price < :val1 and ProductCategory = :val2")
-//                .withExpressionAttributeValues(eav);
-//
-//        List<PlaceTableModel> scanResult = mapper.scan(PlaceTableModel.class, scanExpression);
-//
-//        for (PlaceTableModel book : scanResult) {
-//            System.out.println(book);
-//        }
 
         return Lists.newArrayList();
     }
@@ -77,8 +61,8 @@ class PlacesController {
         String combinedPlaceId = placeId;
 
         for (Integer accessibility : acessibilities) {
-            if(!checkAccessibility(accessibility)) {
-                throw new Err(Status.BAD_REQUEST, "Acessibilidade (" + accessibility +") não contida no sistema.");
+            if (!checkAccessibility(accessibility)) {
+                throw new Err(Status.BAD_REQUEST, "Acessibilidade (" + accessibility + ") não contida no sistema.");
             }
         }
 
@@ -90,17 +74,18 @@ class PlacesController {
         return placeTableModel;
     }
 
-    private List<PlaceVO> searcAcessibilitiesOnDb(List<PlaceTableModel> placesTableModelToSearch, List<PlaceVO> placeVOs) {
+    private List<Object> searcAccessibilityOnDbByPlacesIds(List<PlaceTableModel> placesTableModelToSearch) {
         Map<String, List<Object>> stringListMap = mapper.batchLoad(placesTableModelToSearch);
 
-        //TODO(Heiner) refactor
-        for (Map.Entry<String, List<Object>> map : stringListMap.entrySet()) {
-            for (Object object: map.getValue()) {
-                PlaceTableModel placeTableModel = (PlaceTableModel) object;
-                for (PlaceVO placeVO : placeVOs) {
-                    if(placeVO.getPlaceId().equals(placeTableModel.getPlaceId())) {
-                        placeVO.acessibilities = placeTableModel.getAcessibilities();
-                    }
+        return stringListMap.get(PlaceTableModel.PLACES_TABLE_NAME);
+    }
+
+    private List<PlaceVO> mergeAcessibilities(List<PlaceVO> placeVOs, List<Object> placesTableModel) {
+        for (Object object : placesTableModel) {
+            PlaceTableModel placeTableModel = (PlaceTableModel) object;
+            for (PlaceVO placeVO : placeVOs) {
+                if (placeVO.getPlaceId().equals(placeTableModel.getPlaceId())) {
+                    placeVO.acessibilities = placeTableModel.getAcessibilities();
                 }
             }
         }

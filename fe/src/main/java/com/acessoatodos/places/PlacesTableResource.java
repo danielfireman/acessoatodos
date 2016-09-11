@@ -42,7 +42,7 @@ public class PlacesTableResource {
 
     @DELETE
     public Result delete() throws InterruptedException {
-        Table table = db.getTable(PlaceTableModel.TABLE_NAME);
+        Table table = db.getTable(PlaceTableModel.PLACES_TABLE_NAME);
         DeleteTableResult res = table.delete();
         table.waitForDelete();
         return Results.ok(res);
@@ -50,7 +50,7 @@ public class PlacesTableResource {
 
     @GET
     public Result get() {
-        TableDescription tableDesc = db.getTable(PlaceTableModel.TABLE_NAME).describe();
+        TableDescription tableDesc = db.getTable(PlaceTableModel.PLACES_TABLE_NAME).describe();
         return Results.json(tableDesc);
     }
 }

@@ -1,6 +1,5 @@
 package com.acessoatodos.places;
 
-import com.acessoatodos.acessibility.Accessibility;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -18,6 +17,7 @@ class PlacesController {
     private DynamoDBMapper mapper;
 
     private final String PREFIX_GM_PIPE = "gm|";
+    private static final Map<Integer, String> accessibility;
 
     @Inject
     PlacesController(GooglePlaces googlePlaces, DynamoDBMapper mapper) {
@@ -94,10 +94,16 @@ class PlacesController {
     }
 
     private boolean checkAccessibility(Integer externalValue) {
-        for (Accessibility accessibility : Accessibility.values()) {
-            if (externalValue == accessibility.getValue()) return true;
-        }
+        return (this.accessibility.get(externalValue) != null) ? true : false;
+    }
 
-        return false;
+    static {
+        Map<Integer, String> aMap = new HashMap<>();
+        aMap.put(100, "Access ramp");
+        aMap.put(101, "Adapted WC");
+        aMap.put(102, "Elevator");
+        aMap.put(103, "Panel braile elevator");
+        aMap.put(104, "Info braile");
+        accessibility = Collections.unmodifiableMap(aMap);
     }
 }

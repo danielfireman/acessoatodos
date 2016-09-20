@@ -8,6 +8,7 @@ import com.codahale.metrics.jvm.MemoryUsageGaugeSet;
 import com.codahale.metrics.jvm.ThreadStatesGaugeSet;
 import org.jooby.Jooby;
 import org.jooby.Results;
+import org.jooby.handlers.CorsHandler;
 import org.jooby.json.Jackson;
 import org.jooby.metrics.Metrics;
 import org.jooby.whoops.Whoops;
@@ -19,6 +20,7 @@ public class App extends Jooby {
     {
         // Jooby modules.
         use(new Jackson());
+        use("*", new CorsHandler());
 
         // Acessoatodos modules.
         use(new PlacesModule(this));

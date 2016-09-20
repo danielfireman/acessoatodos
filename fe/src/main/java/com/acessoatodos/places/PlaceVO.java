@@ -1,8 +1,7 @@
 package com.acessoatodos.places;
 
 import java.util.List;
-
-import com.acessoatodos.acessibility.AcessibilityVO;
+import java.util.Set;
 
 import lombok.Getter;
 
@@ -34,7 +33,7 @@ class PlaceVO {
     /**
      * The list of acessibility codes registered
      */
-    List<AcessibilityVO> acessibilities;
+    Set<Integer> acessibilities;
 
     /**
      * The list of descriptions of types of places registered on google

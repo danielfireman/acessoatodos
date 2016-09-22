@@ -11,11 +11,11 @@ import com.google.common.collect.Lists;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class GooglePlacesResponse {
-    // TODO(heiner): Remove unused fields.
-    @JsonProperty List<String> html_attributions;
-    @JsonProperty List<Item> results = Lists.newArrayList();
+    // TODO(danielfireman): Remove unused fields.
+    @JsonProperty("html_attributions") List<String> htmlAttributions;
+    @JsonProperty List<Item> results;
     @JsonProperty String status;
-    @JsonProperty String next_page_token;
+    @JsonProperty("next_page_token") String nextPageToken;
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     static class Item {
@@ -23,7 +23,7 @@ class GooglePlacesResponse {
         @JsonProperty String name;
         @JsonProperty String icon;
         @JsonProperty String id;
-        @JsonProperty String place_id;
+        @JsonProperty("place_id") String placeId;
         @JsonProperty String scope;
         @JsonProperty String reference;
         @JsonProperty String vicinity;

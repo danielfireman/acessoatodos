@@ -11,15 +11,19 @@ import java.util.Set;
 /**
  * Describes the places table.
  */
-@Getter
 @Setter
+@Getter
 @DynamoDBTable(tableName = PlacesTableModel.PLACES_TABLE_NAME)
 public class PlacesTableModel {
     static final String PLACES_TABLE_NAME = "places";
 
     @DynamoDBHashKey
     String placeId;
-
     @DynamoDBAttribute
-    Set<Integer> acessibilities;
+    Set<Integer> accessibilities;
+
+    public PlacesTableModel() {}
+    PlacesTableModel(String placeId) {
+        this.placeId = placeId;
+    }
 }

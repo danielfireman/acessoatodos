@@ -6,6 +6,7 @@ import com.google.inject.Binder;
 import com.typesafe.config.Config;
 import org.jooby.Env;
 import org.jooby.Jooby;
+import org.jooby.json.Jackson;
 
 /**
  * Module responsible for binding routes and resources related to places.

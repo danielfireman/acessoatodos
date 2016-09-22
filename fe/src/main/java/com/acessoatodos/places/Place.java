@@ -1,15 +1,19 @@
 package com.acessoatodos.places;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+
 import java.util.List;
 import java.util.Set;
-
-import lombok.Getter;
 
 /**
  * API response holding places information.
  */
 @Getter
-class PlaceVO {
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+class Place {
     /**
      * The place id of place registered on google
      */
@@ -31,9 +35,9 @@ class PlaceVO {
     Float longitude;
 
     /**
-     * The list of acessibility codes registered
+     * The list of accessibility codes registered
      */
-    Set<Integer> acessibilities;
+    Set<Integer> accessibilities;
 
     /**
      * The list of descriptions of types of places registered on google

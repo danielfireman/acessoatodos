@@ -27,8 +27,6 @@ public class App extends Jooby {
         use(new DynamoDbModule());
 
         // Static routes.
-        assets("/", "index.html");
-        assets("/**");
         get("/ping", () -> Results.ok());
 
         // Stuff that is enabled only in dev.

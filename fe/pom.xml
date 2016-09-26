@@ -183,6 +183,13 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Google Maps -->
+        <dependency>
+            <groupId>com.google.maps</groupId>
+            <artifactId>google-maps-services</artifactId>
+            <version>0.1.15</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -27,12 +27,12 @@ class Place {
     /**
      * The position of latitude of place
      */
-    Float latitude;
+    Double latitude;
 
     /**
      * The position of longitude of place
      */
-    Float longitude;
+    Double longitude;
 
     /**
      * The list of accessibility codes registered
@@ -42,5 +42,5 @@ class Place {
     /**
      * The list of descriptions of types of places registered on google
      */
-    List<String> types;
+    String[] types;
 }

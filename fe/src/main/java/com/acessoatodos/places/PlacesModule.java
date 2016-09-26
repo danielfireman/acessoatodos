@@ -24,6 +24,7 @@ public class PlacesModule implements Jooby.Module {
         binder.requestInjection(DynamoDB.class);
         binder.requestInjection(DynamoDBMapper.class);
 
+        app.use(new GooglePlacesModule());
         app.use(PlacesResource.class);
         app.use(PlacesTableResource.class);
     }

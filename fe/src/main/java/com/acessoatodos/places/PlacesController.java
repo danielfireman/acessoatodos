@@ -1,12 +1,10 @@
 package com.acessoatodos.places;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.inject.Inject;
 import com.google.maps.NearbySearchRequest;
-import com.google.maps.PendingResult;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
@@ -36,13 +34,11 @@ class PlacesController {
             103, // Elevator with Braile panel
             104);
 
-    private final DynamoDBMapper mapper;
     private final GooglePlaces places;
 
     @Inject
-    PlacesController(GooglePlaces places, DynamoDBMapper mapper) {
+    PlacesController(GooglePlaces places) {
         this.places = places;
-        this.mapper = mapper;
     }
 
     Collection<Place> getNearbyPlaces(float latitude, float longitude) {
@@ -80,7 +76,8 @@ class PlacesController {
         List<PlacesTableModel> itemsToSearch = Stream.of(results)
                 .map(i -> new PlacesTableModel(i.placeId))
                 .collect(Collectors.toList());
-        Map<String, List<Object>> dbResults = mapper.batchLoad(itemsToSearch);
+        // TODO(danielfireman): get real results from DB
+        Map<String, List<Object>> dbResults = Maps.newHashMap();
         if (!dbResults.containsKey(PlacesTableModel.PLACES_TABLE_NAME)) {
             return places.values();
         }
@@ -104,13 +101,14 @@ class PlacesController {
         }
         PlacesTableModel placesTableModel = new PlacesTableModel(placeId);
         placesTableModel.accessibilities = Sets.newHashSet(accessibilities);
-        mapper.save(placesTableModel);
+        // TODO(danielfireman): Save in DB.
 
         return placesTableModel;
     }
 
     Place get(String placeId) {
-        PlacesTableModel dbData = mapper.load(new PlacesTableModel(placeId));
+        // TODO(danielfireman): Fetch from DB.
+        PlacesTableModel dbData = new PlacesTableModel();
         if (dbData == null) {
             Results.with(Status.NOT_FOUND);
         }

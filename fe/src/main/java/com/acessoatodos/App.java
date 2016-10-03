@@ -1,6 +1,5 @@
 package com.acessoatodos;
 
-import com.acessoatodos.aws.DynamoDbModule;
 import com.acessoatodos.places.PlacesModule;
 import com.codahale.metrics.jvm.FileDescriptorRatioGauge;
 import com.codahale.metrics.jvm.GarbageCollectorMetricSet;
@@ -24,7 +23,6 @@ public class App extends Jooby {
 
         // Acessoatodos modules.
         use(new PlacesModule(this));
-        use(new DynamoDbModule());
 
         // Static routes.
         get("/ping", () -> Results.ok());

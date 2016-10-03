@@ -1,1 +1,0 @@
-web: cd fe; mvn jooby:run -Dapplication.port=8080

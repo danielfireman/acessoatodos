@@ -29,25 +29,12 @@
         <dependency>
             <groupId>org.jooby</groupId>
             <artifactId>jooby</artifactId>
-        </dependency>
+       </dependency>
 
         <!-- Server -->
-        <dependency>
+       <dependency>
             <groupId>org.jooby</groupId>
-            <artifactId>jooby-netty</artifactId>
-        </dependency>
-
-        <!-- Fluent HC -->
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>fluent-hc</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <scope>test</scope>
+	    <artifactId>jooby-netty</artifactId>
         </dependency>
 
         <!-- Jackson  -->

@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -jar target/acessoatodos-fe-dev.jar
+web: java $JAVA_OPTS -Dapplication.port=${PORT} -jar target/acessoatodos-fe-dev.jar

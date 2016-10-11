@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 
@@ -35,19 +34,25 @@ func main() {
 	}
 
 	app := iris.New()
+
+	// Redirecting to github for now.
+	app.Get("/", func(ctx *iris.Context) {
+		ctx.Redirect("//github.com/danielfireman/acessoatodos", iris.StatusTemporaryRedirect)
+	})
+
 	apiV1 := app.Party("api/v1")
 	{
 		apiV1.Get("/place", func(ctx *iris.Context) {
 			lat, err := strconv.ParseFloat(ctx.URLParam("lat"), 64)
 			if err != nil {
 				ctx.Logger().Printf("Error processing request: %q", err)
-				ctx.HTML(http.StatusBadRequest, "Invalid lat param")
+				ctx.HTML(iris.StatusBadRequest, "Invalid lat param")
 				return
 			}
 			lng, err := strconv.ParseFloat(ctx.URLParam("lng"), 64)
 			if err != nil {
 				ctx.Logger().Printf("Error processing request: %q", err)
-				ctx.HTML(http.StatusBadRequest, "Invalid lng param")
+				ctx.HTML(iris.StatusBadRequest, "Invalid lng param")
 				return
 			}
 			resp, err := gMapsClient.NearbySearch(context.Background(), &maps.NearbySearchRequest{
@@ -59,11 +64,11 @@ func main() {
 			})
 			if err != nil {
 				ctx.Logger().Printf("Error processing request: %q", err)
-				ctx.SetStatusCode(http.StatusInternalServerError)
+				ctx.SetStatusCode(iris.StatusInternalServerError)
 				return
 			}
 			ctx.SetContentType("application/json")
-			ctx.JSON(http.StatusOK, resp)
+			ctx.JSON(iris.StatusOK, resp)
 		})
 	}
 	app.Listen(":" + port)

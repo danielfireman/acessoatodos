@@ -60,6 +60,7 @@ func main() {
 			if err != nil {
 				ctx.Logger().Printf("Error processing request: %q", err)
 				ctx.SetStatusCode(http.StatusInternalServerError)
+				return
 			}
 			ctx.SetContentType("application/json")
 			ctx.JSON(http.StatusOK, resp)

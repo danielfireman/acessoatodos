@@ -35,32 +35,35 @@ func main() {
 	}
 
 	app := iris.New()
-	app.Get("api/v1/place", func(ctx *iris.Context) {
-		lat, err := strconv.ParseFloat(ctx.URLParam("lat"), 64)
-		if err != nil {
-			ctx.Logger().Printf("Error processing request: %q", err)
-			ctx.HTML(http.StatusBadRequest, "Invalid lat param")
-			return
-		}
-		lng, err := strconv.ParseFloat(ctx.URLParam("lng"), 64)
-		if err != nil {
-			ctx.Logger().Printf("Error processing request: %q", err)
-			ctx.HTML(http.StatusBadRequest, "Invalid lng param")
-			return
-		}
-		resp, err := gMapsClient.NearbySearch(context.Background(), &maps.NearbySearchRequest{
-			Location: &maps.LatLng{
-				Lat: lat,
-				Lng: lng,
-			},
-			Radius: nearbySearchRadiusMeters,
+	apiV1 := app.Party("api/v1")
+	{
+		apiV1.Get("/place", func(ctx *iris.Context) {
+			lat, err := strconv.ParseFloat(ctx.URLParam("lat"), 64)
+			if err != nil {
+				ctx.Logger().Printf("Error processing request: %q", err)
+				ctx.HTML(http.StatusBadRequest, "Invalid lat param")
+				return
+			}
+			lng, err := strconv.ParseFloat(ctx.URLParam("lng"), 64)
+			if err != nil {
+				ctx.Logger().Printf("Error processing request: %q", err)
+				ctx.HTML(http.StatusBadRequest, "Invalid lng param")
+				return
+			}
+			resp, err := gMapsClient.NearbySearch(context.Background(), &maps.NearbySearchRequest{
+				Location: &maps.LatLng{
+					Lat: lat,
+					Lng: lng,
+				},
+				Radius: nearbySearchRadiusMeters,
+			})
+			if err != nil {
+				ctx.Logger().Printf("Error processing request: %q", err)
+				ctx.SetStatusCode(http.StatusInternalServerError)
+			}
+			ctx.SetContentType("application/json")
+			ctx.JSON(http.StatusOK, resp)
 		})
-		if err != nil {
-			ctx.Logger().Printf("Error processing request: %q", err)
-			ctx.SetStatusCode(http.StatusInternalServerError)
-		}
-		ctx.SetContentType("application/json")
-		ctx.JSON(http.StatusOK, resp)
-	})
+	}
 	app.Listen(":" + port)
 }

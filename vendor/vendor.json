@@ -355,6 +355,28 @@
 			"revisionTime": "2015-04-05T16:34:35Z"
 		},
 		{
+			"checksumSHA1": "suL7yZNBxN847Lmrt2bMIIwtJ4g=",
+			"path": "github.com/yvasiyarov/go-metrics",
+			"revision": "c25f46c4b94079672242ec48a545e7ca9ebe3aec",
+			"revisionTime": "2015-01-12T13:29:44Z"
+		},
+		{
+			"checksumSHA1": "vn6GauRb5+/heftlNb5OLybL1S0=",
+			"path": "github.com/yvasiyarov/gorelic",
+			"revision": "ae09aa139a2b7f638e2412baceaceebd41eff115",
+			"revisionTime": "2016-06-16T10:50:35Z"
+		},
+		{
+			"checksumSHA1": "/9VouHqPf0ad+TcMGqhPssfoLb0=",
+			"path": "github.com/yvasiyarov/newrelic_platform_go",
+			"revision": "9c099fbc30e90de5bb5c5f94aa5fd08f2daeaacd",
+			"revisionTime": "2016-06-01T14:19:57Z"
+		},
+		{
+			"path": "go",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "h+pFYiRHBogczS8/F1NoN3Ata44=",
 			"path": "golang.org/x/crypto/curve25519",
 			"revision": "dc7f3af03ebbba4b0c90f8d95c682dba7d4c70f5",

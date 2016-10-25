@@ -9,9 +9,7 @@ Marcar espaços públicos e privados que oferecem equidade de acesso.
 
 # Contribuidores
 * [Daniel Fireman](github.com/danielfireman): projeto, arquitetura e desenvolvimento
-* Erivan
-* [Heiner] (github.com/Khwesten): documentação, arquitetura e desenvolvimento
-* Diego
+* [Heiner] (github.com/Khwesten): Primeira versão da implementação utilizando Java
 
 # License
 This project is licensed under the Apache License 2.0.

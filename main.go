@@ -33,6 +33,13 @@ type NearbySearchResponse struct {
 	Results []NearbySearchResult `json:"results"`
 }
 
+type GetPlaceResult struct {
+	Name          string   `json:"name"`
+	Location      LatLng   `json:"loc"`
+	Accessibility []string `json:"accessibility"`
+	GoogleMapsPlaceID string `json:"gmplaceid"`
+}
+
 type NearbySearchResult struct {
 	Name          string   `json:"name"`
 	Location      LatLng   `json:"loc"`
@@ -217,20 +224,14 @@ func main() {
 			PlaceID:placeID,
 		})
 		if err != nil {
-			log.Printf("Error fetching place details from google maps: %v", err)
 			if strings.Contains(err.Error(), "INVALID_REQUEST") {
-				http.Error(w, "Invalid ID", http.StatusBadRequest)
+				http.Error(w, "Place not found", http.StatusNotFound)
 				return
 			}
+			log.Printf("Error fetching place details from google maps: %v", err)
 			http.Error(w, "Error fetching place details from Google Maps.", http.StatusServiceUnavailable)
 			return
 		}
-		if result.PlaceID == "" {
-			log.Printf("Place not found on Google Maps")
-			http.Error(w, "Place not found on Google Maps.", http.StatusBadRequest)
-			return
-		}
-
 		session := mgoSession.Copy()
 		defer session.Close()
 
@@ -277,6 +278,52 @@ func main() {
 		}
 	})
 
+	router.GET("/api/v1/place/:id", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		placeID := ps.ByName("id")
+		if placeID == "" || len(placeID) <= 3 {
+			http.Error(w, "Invalid ID.", http.StatusBadRequest)
+			return
+		}
+		// TODO(danielfireman): add timeout
+		placeID = placeID[4:]
+		placeDetails, err := gMapsClient.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
+			PlaceID:placeID,
+		})
+		if err != nil {
+			if strings.Contains(err.Error(), "INVALID_REQUEST") {
+				http.Error(w, "Place not found", http.StatusNotFound)
+				return
+			}
+			log.Printf("Error fetching place details from google maps: %v", err)
+			http.Error(w, "Error fetching place details from Google Maps.", http.StatusServiceUnavailable)
+			return
+		}
+		session := mgoSession.Copy()
+		defer session.Close()
+
+		var dbPlace DBPlace
+		err = session.DB(dbName).C(PlacesTable).Find(bson.M{"gmplaceid": placeID}).One(&dbPlace)
+		if err != nil && err != mgo.ErrNotFound {
+			log.Printf("Error fetching place (placeID:%s) details from database: %v", placeID, err)
+			http.Error(w, "Error fetching place details from database.", http.StatusServiceUnavailable)
+			return
+		}
+		result := GetPlaceResult{
+			GoogleMapsPlaceID: placeDetails.PlaceID,
+			Location: LatLng{
+				Lat: placeDetails.Geometry.Location.Lat,
+				Lng: placeDetails.Geometry.Location.Lng,
+			},
+			Name: placeDetails.Name,
+			Accessibility: dbPlace.Accessibility,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(result); err != nil {
+			log.Printf("Error marshaling response: %q", err)
+			http.Error(w, "Problems marshaling response.", http.StatusInternalServerError)
+		}
+
+	})
 	log.Println("Service listening at port ", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }

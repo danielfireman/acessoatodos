@@ -6,23 +6,23 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
 
 	"googlemaps.github.io/maps"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
 
+	"strings"
+	"time"
+
+	"github.com/danielfireman/acessoatodos/placesdb"
 	"github.com/julienschmidt/httprouter"
 	"github.com/newrelic/go-agent"
-	"strings"
 )
 
 const (
 	mapsQPSLimit             = 10
 	nearbySearchRadiusMeters = 100
-	PlacesTable              = "places"
+	opsTimeout               = 50 * time.Second
 )
 
 type PostAccessibilityRequest struct {
@@ -34,34 +34,22 @@ type NearbySearchResponse struct {
 }
 
 type GetPlaceResult struct {
-	Name          string   `json:"name"`
-	Location      LatLng   `json:"loc"`
-	Accessibility []string `json:"accessibility"`
-	GoogleMapsPlaceID string `json:"gmplaceid"`
+	Name              string   `json:"name"`
+	Location          LatLng   `json:"loc"`
+	Accessibility     []string `json:"accessibility"`
+	GoogleMapsPlaceID string   `json:"gmplaceid"`
 }
 
 type NearbySearchResult struct {
-	Name          string   `json:"name"`
-	Location      LatLng   `json:"loc"`
-	Accessibility []string `json:"accessibility"`
-	GoogleMapsPlaceID string `json:"gmplaceid"`
+	Name              string   `json:"name"`
+	Location          LatLng   `json:"loc"`
+	Accessibility     []string `json:"accessibility"`
+	GoogleMapsPlaceID string   `json:"gmplaceid"`
 }
 
 type LatLng struct {
 	Lat float64 `json:"lat"`
 	Lng float64 `json:"lng"`
-}
-
-type DBPlace struct {
-	ID     bson.ObjectId `bson:"_id,omitempty"`
-	GoogleMapsPlaceID     string `bson:"gmplaceid,omitempty"`
-	Location      GeoJson  `bson:"loc"`
-	Accessibility []string `bson:"acc"`
-}
-
-type GeoJson struct {
-	Type        string    `bson:"type,omitempty"`
-	Coordinates []float64 `bson:"coordinates"`
 }
 
 func main() {
@@ -82,17 +70,11 @@ func main() {
 	}
 	fmt.Println("Connected to GoogleMaps")
 
-	// MongoDB initialization.
-	mgoURL, err := url.Parse(os.Getenv("MONGODB_URI"))
-	if mgoURL.String() == "" || err != nil {
-		log.Fatalf("Error parsing MONGDB_URI:%s err:%q\n", mgoURL.String(), err)
-	}
-	mgoSession, err := mgo.Dial(mgoURL.String())
+	// DB
+	db, err := placesdb.Dial(os.Getenv("MONGODB_URI"), opsTimeout)
 	if err != nil {
-		log.Fatalf("Error connecting to mongoDB:%s err:%q\n", mgoURL.String(), err)
+		log.Fatal(err)
 	}
-	dbName := mgoURL.EscapedPath()[1:] // Removing initial "/"
-	fmt.Printf("Connected to mongo. DB:%s URI:%s\n", dbName, mgoURL)
 
 	// New relic initialization.
 	nrLicence := os.Getenv("NEW_RELIC_LICENSE_KEY")
@@ -129,39 +111,6 @@ func main() {
 			return
 		}
 
-		// Asynchronously fetch data from database.
-		mgoDBChan := make(chan map[string]*DBPlace)
-		go func(resChan chan<- map[string]*DBPlace) {
-			defer newrelic.StartSegment(txn, "MongoDBNearbySearch").End()
-
-			session := mgoSession.Copy()
-			defer session.Close()
-
-			c := session.DB(dbName).C(PlacesTable)
-			var dbRes []DBPlace
-			q := c.Find(bson.M{
-				"loc": bson.M{
-					"$nearSphere": bson.M{
-						"$geometry": bson.M{
-							"type":        "Point",
-							"coordinates": []float64{lat, lng},
-						},
-						"$maxDistance": nearbySearchRadiusMeters,
-					},
-				},
-			})
-			err = q.All(&dbRes)
-			if err != nil {
-				log.Printf("Error fetching data from database: %q", err)
-			}
-			// Returning a map, which is more suitable to be queried.
-			results := make(map[string]*DBPlace, len(dbRes))
-			for _, r := range dbRes {
-				results[r.GoogleMapsPlaceID] = &r
-			}
-			resChan <- results
-		}(mgoDBChan)
-
 		// Asynchronously sends a request to google maps.
 		gMapsChan := make(chan maps.PlacesSearchResponse)
 		go func(chan<- maps.PlacesSearchResponse) {
@@ -182,8 +131,21 @@ func main() {
 			gMapsChan <- resp
 		}(gMapsChan)
 
-		// Merging results.
-		dbResp := <-mgoDBChan
+		// Placing db results in a map to ease merging results.
+		dbSeg := newrelic.StartSegment(txn, "DBNearbySearch")
+		dbRes, err := db.NearbySearch(lat, lng, nearbySearchRadiusMeters)
+		dbSeg.End()
+		if err != nil {
+			// NOTE: Deliberately let the request advance even when we don't had an error trying to fetch
+			// accessibility.
+			// TODO(danielfireman): Log request.
+			log.Printf("Error fetching data from database: %q", err)
+		}
+
+		dbResMap := make(map[string]*placesdb.Place, len(dbRes))
+		for _, r := range dbRes {
+			dbResMap[r.GoogleMapsPlaceID] = &r
+		}
 		gMapsResp := <-gMapsChan
 		var results []NearbySearchResult
 		for _, r := range gMapsResp.Results {
@@ -195,7 +157,7 @@ func main() {
 				},
 				Name: r.Name,
 			}
-			dbEntry, ok := dbResp[result.GoogleMapsPlaceID]
+			dbEntry, ok := dbResMap[result.GoogleMapsPlaceID]
 			if ok {
 				result.Accessibility = dbEntry.Accessibility
 			}
@@ -219,9 +181,11 @@ func main() {
 			return
 		}
 		// TODO(danielfireman): add timeout
+		// TODO(danielfireman): Trigger this from an goroutine blocking only after fetching the objectID
+		// TODO(danielfireman): Pass-in a cancellable context.
 		placeID = placeID[4:]
 		result, err := gMapsClient.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
-			PlaceID:placeID,
+			PlaceID: placeID,
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "INVALID_REQUEST") {
@@ -230,19 +194,6 @@ func main() {
 			}
 			log.Printf("Error fetching place details from google maps: %v", err)
 			http.Error(w, "Error fetching place details from Google Maps.", http.StatusServiceUnavailable)
-			return
-		}
-		session := mgoSession.Copy()
-		defer session.Close()
-
-		var dbPlace DBPlace
-		switch session.DB(dbName).C(PlacesTable).Find(bson.M{"gmplaceid": placeID}).Select(bson.M{"_id": 1}).One(&dbPlace) {
-		case nil:
-		case mgo.ErrNotFound:
-			dbPlace.ID = bson.NewObjectId()
-		default:
-			log.Printf("Error fetching place (placeID:%s) details from database: %v", placeID, err)
-			http.Error(w, "Error fetching place details from database.", http.StatusServiceUnavailable)
 			return
 		}
 
@@ -255,16 +206,10 @@ func main() {
 		}
 		defer r.Body.Close()
 
-		// Updating dabase object with information from google maps and from request.
-		dbPlace.GoogleMapsPlaceID = placeID
-			dbPlace.Accessibility = p.Accessibility
-			dbPlace.Location = GeoJson{
-				Type:"Point",
-				Coordinates:[]float64{result.Geometry.Location.Lat, result.Geometry.Location.Lng},
-			}
-
-
-		if _, err := session.DB(dbName).C(PlacesTable).UpsertId(dbPlace.ID, &dbPlace);  err != nil {
+		// Updating database object with information from google maps and from request.
+		lat := result.Geometry.Location.Lat
+		lng := result.Geometry.Location.Lng
+		if err := db.Upsert(placeID, p.Accessibility, lat, lng); err != nil {
 			log.Printf("Error insertind record on database: %q", err)
 			http.Error(w, "Problems inserting into database response.", http.StatusInternalServerError)
 			return
@@ -284,10 +229,13 @@ func main() {
 			http.Error(w, "Invalid ID.", http.StatusBadRequest)
 			return
 		}
-		// TODO(danielfireman): add timeout
 		placeID = placeID[4:]
+
+		// TODO(danielfireman): add timeout
+		// TODO(danielfireman): Trigger this from an goroutine blocking only after fetching the objectID
+		// TODO(danielfireman): Pass-in a cancellable context.
 		placeDetails, err := gMapsClient.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
-			PlaceID:placeID,
+			PlaceID: placeID,
 		})
 		if err != nil {
 			if strings.Contains(err.Error(), "INVALID_REQUEST") {
@@ -298,23 +246,21 @@ func main() {
 			http.Error(w, "Error fetching place details from Google Maps.", http.StatusServiceUnavailable)
 			return
 		}
-		session := mgoSession.Copy()
-		defer session.Close()
 
-		var dbPlace DBPlace
-		err = session.DB(dbName).C(PlacesTable).Find(bson.M{"gmplaceid": placeID}).One(&dbPlace)
-		if err != nil && err != mgo.ErrNotFound {
+		dbPlace, err := db.Get(placeID)
+		if err != nil {
 			log.Printf("Error fetching place (placeID:%s) details from database: %v", placeID, err)
 			http.Error(w, "Error fetching place details from database.", http.StatusServiceUnavailable)
 			return
 		}
+
 		result := GetPlaceResult{
 			GoogleMapsPlaceID: placeDetails.PlaceID,
 			Location: LatLng{
 				Lat: placeDetails.Geometry.Location.Lat,
 				Lng: placeDetails.Geometry.Location.Lng,
 			},
-			Name: placeDetails.Name,
+			Name:          placeDetails.Name,
 			Accessibility: dbPlace.Accessibility,
 		}
 		w.Header().Set("Content-Type", "application/json")

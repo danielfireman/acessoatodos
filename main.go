@@ -1,28 +1,26 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
-
-	"googlemaps.github.io/maps"
-
-	"strings"
 	"time"
 
+	"fmt"
+
+	"github.com/danielfireman/acessoatodos/maps"
 	"github.com/danielfireman/acessoatodos/placesdb"
 	"github.com/julienschmidt/httprouter"
 	"github.com/newrelic/go-agent"
 )
 
 const (
-	mapsQPSLimit             = 10
+	maxRPS                   = 10
 	nearbySearchRadiusMeters = 100
 	opsTimeout               = 50 * time.Second
+	limit                    = 200
 )
 
 type PostAccessibilityRequest struct {
@@ -60,18 +58,13 @@ func main() {
 	}
 
 	// Google Maps initialization.
-	gMapsKey := os.Getenv("GOOGLE_MAPS_KEY")
-	if gMapsKey == "" {
-		log.Fatal("$GOOGLE_MAPS_KEY env var is mandatory")
-	}
-	gMapsClient, err := maps.NewClient(maps.WithAPIKey(gMapsKey), maps.WithRateLimit(mapsQPSLimit))
+	gMapsClient, err := maps.DialGoogle(os.Getenv("GOOGLE_MAPS_KEY"), opsTimeout, maxRPS, limit)
 	if err != nil {
-		log.Fatalf("Error creating google maps client: %q", err)
+		log.Fatal(err)
 	}
-	fmt.Println("Connected to GoogleMaps")
 
-	// DB
-	db, err := placesdb.Dial(os.Getenv("MONGODB_URI"), opsTimeout)
+	// DB initialization.
+	db, err := placesdb.Dial(os.Getenv("MONGODB_URI"), opsTimeout, maxRPS, limit)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -112,29 +105,10 @@ func main() {
 		}
 
 		// Asynchronously sends a request to google maps.
-		gMapsChan := make(chan maps.PlacesSearchResponse)
-		go func(chan<- maps.PlacesSearchResponse) {
-			defer newrelic.StartSegment(txn, "GoogleNearbySearch").End()
-			// TODO(danielfireman): add timeout
-			resp, err := gMapsClient.NearbySearch(context.Background(), &maps.NearbySearchRequest{
-				Location: &maps.LatLng{
-					Lat: lat,
-					Lng: lng,
-				},
-				Radius: nearbySearchRadiusMeters,
-			})
-			if err != nil {
-				log.Printf("Error fetching data from GMaps: %q", err)
-				gMapsChan <- maps.PlacesSearchResponse{}
-				return
-			}
-			gMapsChan <- resp
-		}(gMapsChan)
+		gMapsChan := gMapsClient.NearbySearch(txn, lat, lng, nearbySearchRadiusMeters)
 
 		// Placing db results in a map to ease merging results.
-		dbSeg := newrelic.StartSegment(txn, "DBNearbySearch")
-		dbRes, err := db.NearbySearch(lat, lng, nearbySearchRadiusMeters)
-		dbSeg.End()
+		dbRes, err := db.NearbySearch(txn, lat, lng, nearbySearchRadiusMeters)
 		if err != nil {
 			// NOTE: Deliberately let the request advance even when we don't had an error trying to fetch
 			// accessibility.
@@ -146,14 +120,21 @@ func main() {
 		for _, r := range dbRes {
 			dbResMap[r.GoogleMapsPlaceID] = &r
 		}
+
 		gMapsResp := <-gMapsChan
+		if gMapsResp.Error != nil {
+			// TODO(danielfireman): Log request
+			log.Printf("Error fetching data from GMaps: %q", err)
+			http.Error(w, "Invalid lng param", http.StatusInternalServerError)
+			return
+		}
 		var results []NearbySearchResult
 		for _, r := range gMapsResp.Results {
 			result := NearbySearchResult{
-				GoogleMapsPlaceID: r.PlaceID,
+				GoogleMapsPlaceID: r.ID,
 				Location: LatLng{
-					Lat: r.Geometry.Location.Lat,
-					Lng: r.Geometry.Location.Lng,
+					Lat: r.Lat,
+					Lng: r.Lng,
 				},
 				Name: r.Name,
 			}
@@ -175,28 +156,16 @@ func main() {
 		txn := app.StartTransaction("PutPlace", w, r)
 		defer txn.End()
 
-		placeID := ps.ByName("id")
-		if placeID == "" || len(placeID) <= 3 {
-			http.Error(w, "Invalid ID.", http.StatusBadRequest)
-			return
-		}
-		// TODO(danielfireman): add timeout
-		// TODO(danielfireman): Trigger this from an goroutine blocking only after fetching the objectID
-		// TODO(danielfireman): Pass-in a cancellable context.
-		placeID = placeID[4:]
-		result, err := gMapsClient.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
-			PlaceID: placeID,
-		})
+		placeID, err := placeID(ps.ByName("id"))
 		if err != nil {
-			if strings.Contains(err.Error(), "INVALID_REQUEST") {
-				http.Error(w, "Place not found", http.StatusNotFound)
-				return
-			}
-			log.Printf("Error fetching place details from google maps: %v", err)
-			http.Error(w, "Error fetching place details from Google Maps.", http.StatusServiceUnavailable)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
+		// Triggering Google Maps request asynchronously.
+		gMapsChan := gMapsClient.Get(txn, placeID)
+
+		// Decode request body.
 		decoder := json.NewDecoder(r.Body)
 		var p PostAccessibilityRequest
 		if err := decoder.Decode(&p); err != nil {
@@ -206,10 +175,22 @@ func main() {
 		}
 		defer r.Body.Close()
 
+		// Block waiting for Google Maps data.
+		gMapsResp := <-gMapsChan
+		if gMapsResp.Error != nil {
+			log.Printf("Error fetching place details from google maps: %v", err)
+			http.Error(w, "Error fetching place details from Google Maps.", http.StatusInternalServerError)
+			return
+		}
+		if len(gMapsResp.Results) == 0 {
+			http.Error(w, "Place not found", http.StatusNotFound)
+			return
+		}
 		// Updating database object with information from google maps and from request.
-		lat := result.Geometry.Location.Lat
-		lng := result.Geometry.Location.Lng
-		if err := db.Upsert(placeID, p.Accessibility, lat, lng); err != nil {
+		placeDetails := gMapsResp.Results[0]
+		lat := placeDetails.Lat
+		lng := placeDetails.Lng
+		if err := db.Put(txn, placeID, p.Accessibility, lat, lng); err != nil {
 			log.Printf("Error insertind record on database: %q", err)
 			http.Error(w, "Problems inserting into database response.", http.StatusInternalServerError)
 			return
@@ -224,41 +205,43 @@ func main() {
 	})
 
 	router.GET("/api/v1/place/:id", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		placeID := ps.ByName("id")
-		if placeID == "" || len(placeID) <= 3 {
-			http.Error(w, "Invalid ID.", http.StatusBadRequest)
+		txn := app.StartTransaction("GetPlace", w, r)
+		defer txn.End()
+
+		placeID, err := placeID(ps.ByName("id"))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		placeID = placeID[4:]
 
-		// TODO(danielfireman): add timeout
-		// TODO(danielfireman): Trigger this from an goroutine blocking only after fetching the objectID
-		// TODO(danielfireman): Pass-in a cancellable context.
-		placeDetails, err := gMapsClient.PlaceDetails(context.Background(), &maps.PlaceDetailsRequest{
-			PlaceID: placeID,
-		})
+		// Triggering Google Maps request asynchronously.
+		gMapsChan := gMapsClient.Get(txn, placeID)
+
+		// Fetches data from DB.
+		dbPlace, err := db.Get(txn, placeID)
 		if err != nil {
-			if strings.Contains(err.Error(), "INVALID_REQUEST") {
-				http.Error(w, "Place not found", http.StatusNotFound)
-				return
-			}
+			// NOTE: Deliberately let the request advance even when we don't had an error trying to fetch
+			// accessibility.
+			log.Printf("Error fetching place (placeID:%s) details from database: %v", placeID, err)
+		}
+
+		// Block waiting for Google Maps data.
+		gMapsResp := <-gMapsChan
+		if gMapsResp.Error != nil {
 			log.Printf("Error fetching place details from google maps: %v", err)
 			http.Error(w, "Error fetching place details from Google Maps.", http.StatusServiceUnavailable)
 			return
 		}
-
-		dbPlace, err := db.Get(placeID)
-		if err != nil {
-			log.Printf("Error fetching place (placeID:%s) details from database: %v", placeID, err)
-			http.Error(w, "Error fetching place details from database.", http.StatusServiceUnavailable)
+		if len(gMapsResp.Results) == 0 {
+			http.Error(w, "Place not found", http.StatusNotFound)
 			return
 		}
-
+		placeDetails := gMapsResp.Results[0]
 		result := GetPlaceResult{
-			GoogleMapsPlaceID: placeDetails.PlaceID,
+			GoogleMapsPlaceID: placeDetails.ID,
 			Location: LatLng{
-				Lat: placeDetails.Geometry.Location.Lat,
-				Lng: placeDetails.Geometry.Location.Lng,
+				Lat: placeDetails.Lat,
+				Lng: placeDetails.Lng,
 			},
 			Name:          placeDetails.Name,
 			Accessibility: dbPlace.Accessibility,
@@ -272,4 +255,11 @@ func main() {
 	})
 	log.Println("Service listening at port ", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
+}
+
+func placeID(placeID string) (string, error) {
+	if placeID == "" || len(placeID) <= 3 {
+		return "", fmt.Errorf("Invalid PlaceID:%s", placeID)
+	}
+	return placeID[4:], nil
 }

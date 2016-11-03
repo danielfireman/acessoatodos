@@ -4,18 +4,22 @@ package placesdb
 
 import (
 	"fmt"
+	"log"
 	"time"
 
+	"github.com/newrelic/go-agent"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 const (
 	tableName = "places"
-	limit     = 200
 )
 
-func Dial(u string, timeout time.Duration) (*Places, error) {
+// Dial connects to the database identified by the URL u, specifying a timeout for all DB
+// operations.
+// TODO(danielfireman): Use max RPS field.
+func Dial(u string, timeout time.Duration, maxRPS, limit int) (*Places, error) {
 	info, err := mgo.ParseURL(u)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing URI:%s err:%q\n", u, err)
@@ -34,10 +38,9 @@ func Dial(u string, timeout time.Duration) (*Places, error) {
 	mgoSession.SetMode(mgo.Monotonic, true)
 
 	dbName := info.Database
-	fmt.Printf("Connected to mongo. DB:%s URI:%s\n", dbName, u)
-	return &Places{mgoSession, dbName}, nil
+	log.Printf("Connected to mongo. DB:%s URI:%s\n", dbName, u)
+	return &Places{mgoSession, dbName, maxRPS, limit}, nil
 }
-
 
 // A Place object holds the information stored in the database.
 type Place struct {
@@ -59,11 +62,15 @@ type GeoJson struct {
 type Places struct {
 	session *mgo.Session
 	dbName  string
+	maxRPS  int
+	limit   int
 }
 
 // NearbySearch synchronously fetches all places within the radius, considering lat and lng the center of a circle.
 // radius in expressed in meters.
-func (p *Places) NearbySearch(lat, lng, radius float64) ([]Place, error) {
+func (p *Places) NearbySearch(txn newrelic.Transaction, lat, lng float64, radius uint) ([]Place, error) {
+	defer newrelic.StartSegment(txn, "DBNearbySearch").End()
+
 	session := p.session.Copy()
 	defer session.Close()
 	c := session.DB(p.dbName).C(tableName)
@@ -79,11 +86,13 @@ func (p *Places) NearbySearch(lat, lng, radius float64) ([]Place, error) {
 		},
 	})
 	var res []Place
-	return res, q.Limit(limit).All(&res)
+	return res, q.Limit(p.limit).All(&res)
 }
 
-// Upsert synchronously upserts the given place.
-func (p *Places) Upsert(placeID string, acc []string, lat, lng float64) error {
+// Put synchronously put the passed-in information into the database.
+func (p *Places) Put(txn newrelic.Transaction, placeID string, acc []string, lat, lng float64) error {
+	defer newrelic.StartSegment(txn, "DBPut").End()
+
 	objectID, err := p.getObjectID(placeID)
 	if err != nil {
 		return err
@@ -105,7 +114,9 @@ func (p *Places) Upsert(placeID string, acc []string, lat, lng float64) error {
 }
 
 // Get synchronously fetches information from the database about a given placeID.
-func (p *Places) Get(placeID string) (*Place, error) {
+func (p *Places) Get(txn newrelic.Transaction, placeID string) (*Place, error) {
+	defer newrelic.StartSegment(txn, "DBGet").End()
+
 	session := p.session.Copy()
 	defer session.Close()
 	var place Place

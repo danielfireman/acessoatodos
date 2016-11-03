@@ -87,7 +87,7 @@ func main() {
 	})
 
 	router.GET("/api/v1/nearby", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		txn := app.StartTransaction("GetPlace", w, r)
+		txn := app.StartTransaction("NearbySerch", w, r)
 		defer txn.End()
 
 		query := r.URL.Query()

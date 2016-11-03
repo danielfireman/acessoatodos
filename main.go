@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
 	"fmt"
 
 	"github.com/danielfireman/acessoatodos/maps"

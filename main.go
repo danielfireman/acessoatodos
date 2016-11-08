@@ -81,8 +81,9 @@ func main() {
 	log.Println("NewRelic monitoring successfully initiated..")
 
 	router := httprouter.New()
-	router.GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-		http.Redirect(w, r, "//github.com/danielfireman/acessoatodos", http.StatusTemporaryRedirect)
+	router.ServeFiles("/public/*filepath", http.Dir("public/"))
+	router.GET("/",  func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+		http.ServeFile(w, r, "public/index.html")
 	})
 
 	router.GET("/api/v1/nearby", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

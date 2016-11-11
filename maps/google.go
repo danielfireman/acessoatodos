@@ -34,6 +34,7 @@ type Place struct {
 	Lat  float64
 	Lng  float64
 	ID   string
+	Types []string
 }
 
 type PlacesResult struct {
@@ -69,6 +70,7 @@ func (api *API) NearbySearch(txn newrelic.Transaction, lat, lng float64, radius 
 				Lat:  r.Geometry.Location.Lat,
 				Lng:  r.Geometry.Location.Lng,
 				ID:   r.PlaceID,
+				Types: r.Types,
 			})
 		}
 		resChan <- PlacesResult{places, nil}
@@ -102,6 +104,7 @@ func (api *API) Get(txn newrelic.Transaction, placeID string) <-chan PlacesResul
 					Lat:  r.Geometry.Location.Lat,
 					Lng:  r.Geometry.Location.Lng,
 					ID:   r.PlaceID,
+					Types: r.Types,
 				},
 			},
 			Error: nil,

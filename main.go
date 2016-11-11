@@ -17,7 +17,7 @@ import (
 
 const (
 	maxRPS                   = 10
-	nearbySearchRadiusMeters = 100
+	nearbySearchRadiusMeters = 500
 	opsTimeout               = 50 * time.Second
 	limit                    = 200
 )
@@ -35,6 +35,7 @@ type GetPlaceResult struct {
 	Location          LatLng   `json:"loc"`
 	Accessibility     []string `json:"accessibility"`
 	GoogleMapsPlaceID string   `json:"gmplaceid"`
+	Types []string `json:"types"`
 }
 
 type NearbySearchResult struct {
@@ -42,6 +43,7 @@ type NearbySearchResult struct {
 	Location          LatLng   `json:"loc"`
 	Accessibility     []string `json:"accessibility"`
 	GoogleMapsPlaceID string   `json:"gmplaceid"`
+	Types []string `json:"types"`
 }
 
 type LatLng struct {
@@ -124,8 +126,8 @@ func main() {
 		gMapsResp := <-gMapsChan
 		if gMapsResp.Error != nil {
 			// TODO(danielfireman): Log request
-			log.Printf("Error fetching data from GMaps: %q", err)
-			http.Error(w, "Invalid lng param", http.StatusInternalServerError)
+			log.Printf("Error fetching data from GMaps: %q", gMapsResp.Error)
+			http.Error(w, "Error fetching data from GMaps", http.StatusInternalServerError)
 			return
 		}
 		var results []NearbySearchResult
@@ -137,6 +139,7 @@ func main() {
 					Lng: r.Lng,
 				},
 				Name: r.Name,
+				Types: r.Types,
 			}
 			dbEntry, ok := dbResMap[result.GoogleMapsPlaceID]
 			if ok {
@@ -245,6 +248,7 @@ func main() {
 			},
 			Name:          placeDetails.Name,
 			Accessibility: dbPlace.Accessibility,
+			Types: placeDetails.Types,
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(result); err != nil {

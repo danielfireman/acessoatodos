@@ -3,41 +3,24 @@
 // failed.", it means you probably did not give permission for the browser to
 // locate you.
 function initMap() {
-    var map = new google.maps.Map(document.getElementById('map'), {
-      center: {lat: -34.397, lng: 150.644},
-      zoom: 16,
-      disableDoubleClickZoom: false,
-      zoomControl: true,
-      scrollwheel: true,
-      scaleControl: true,
-      streetViewControl: false,
-      clickableIcons: false,
-      mapTypeControl: false
+    // https://hpneo.github.io/gmaps/documentation.html
+    var map = new GMaps({
+      div: '#map',
+      lat: -34.397,
+      lng: 150.644,
+      zoom: 16
     });
     // Try HTML5 geolocation.
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        map.setCenter(pos);
+        map.setCenter(position.coords.latitude, position.coords.longitude);
 
         $.get(
             "api/v1/nearby?lat=" + position.coords.latitude + "&lng=" + position.coords.longitude,
             "",
             function(data) {
-                var markers = [];
-                var infoWindows = [];
                 for (i = 0; i < data.results.length; i++) {
                     p = data.results[i]
-                    console.log(p)
-                    markers[i] = new google.maps.Marker({
-                        position: new google.maps.LatLng(p.loc.lat, p.loc.lng),
-                        title: p.name,
-                        map: map,
-                        draggable: false
-                    });
                     content = '<div id="content">'+
                     '<div id="siteNotice">'+
                     '</div>'+
@@ -48,14 +31,21 @@ function initMap() {
                         content += '<b>Accessibility:</b>' + p.accessibility + '<br>'
                     }
                     content += '</div></div>';
-                    infoWindows[i] = new google.maps.InfoWindow({
-                        content: content
-                    });
-                    google.maps.event.addListener(markers[i], 'click', function(pos) {
-                        return function() {
-                            infoWindows[pos].open(map, markers[pos]);
-                        }
-                    }(i));
+                    var marker = {
+                       lat: p.loc.lat,
+                       lng: p.loc.lng,
+                       title: p.name,
+                       infoWindow: {
+                         content: content
+                       }
+                    }
+                    if (p.accessibility != null) {
+                        marker.icon = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                    } else {
+                        marker.icon = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                    }
+                    map.addMarker(marker);
+                    map.fitZoom()
                 }
             },
             "json");

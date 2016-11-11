@@ -45,8 +45,8 @@ function initMap() {
                         marker.icon = 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
                     }
                     map.addMarker(marker);
-                    map.fitZoom()
                 }
+                map.fitZoom()
             },
             "json");
       }, function() {

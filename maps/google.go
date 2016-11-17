@@ -30,10 +30,10 @@ func DialGoogle(key string, timeout time.Duration, maxRPS, limit int) (*API, err
 }
 
 type Place struct {
-	Name string
-	Lat  float64
-	Lng  float64
-	ID   string
+	Name  string
+	Lat   float64
+	Lng   float64
+	ID    string
 	Types []string
 }
 
@@ -65,17 +65,55 @@ func (api *API) NearbySearch(txn newrelic.Transaction, lat, lng float64, radius 
 		}
 		var places []*Place
 		for _, r := range resp.Results {
-			places = append(places, &Place{
-				Name: r.Name,
-				Lat:  r.Geometry.Location.Lat,
-				Lng:  r.Geometry.Location.Lng,
-				ID:   r.PlaceID,
-				Types: r.Types,
-			})
+			if !blackListed(&r) {
+				places = append(places, &Place{
+					Name:  r.Name,
+					Lat:   r.Geometry.Location.Lat,
+					Lng:   r.Geometry.Location.Lng,
+					ID:    r.PlaceID,
+					Types: r.Types,
+				})
+			}
 		}
 		resChan <- PlacesResult{places, nil}
 	}()
 	return resChan
+}
+
+// typesBlacklist is a set of types that should not be returned in nearby search requests.
+// https://developers.google.com/places/supported_types
+var typesBlacklist = map[string]struct{}{
+	"political":                   struct{}{},
+	"administrative_area_level_1": struct{}{},
+	"administrative_area_level_2": struct{}{},
+	"administrative_area_level_3": struct{}{},
+	"administrative_area_level_4": struct{}{},
+	"administrative_area_level_5": struct{}{},
+	"colloquial_area":             struct{}{},
+	"country":                     struct{}{},
+	"locality":                    struct{}{},
+	"sublocality":                 struct{}{},
+	"sublocality_level_4":         struct{}{},
+	"sublocality_level_5":         struct{}{},
+	"sublocality_level_3":         struct{}{},
+	"sublocality_level_2":         struct{}{},
+	"sublocality_level_1":         struct{}{},
+	"postal_code":                 struct{}{},
+	"postal_code_prefix":          struct{}{},
+	"postal_code_suffix":          struct{}{},
+	"postal_town":                 struct{}{},
+}
+
+// blackListed returns true if a Google Maps's place should not be returned in nearby search and false otherwise.
+func blackListed(r *maps.PlacesSearchResult) bool {
+	blackListed := false
+	for _, t := range r.Types {
+		_, blackListed = typesBlacklist[t]
+		if blackListed {
+			break
+		}
+	}
+	return blackListed
 }
 
 // Get asynchronously fetches information about a place.
@@ -100,10 +138,10 @@ func (api *API) Get(txn newrelic.Transaction, placeID string) <-chan PlacesResul
 		resChan <- PlacesResult{
 			Results: []*Place{
 				{
-					Name: r.Name,
-					Lat:  r.Geometry.Location.Lat,
-					Lng:  r.Geometry.Location.Lng,
-					ID:   r.PlaceID,
+					Name:  r.Name,
+					Lat:   r.Geometry.Location.Lat,
+					Lng:   r.Geometry.Location.Lng,
+					ID:    r.PlaceID,
 					Types: r.Types,
 				},
 			},

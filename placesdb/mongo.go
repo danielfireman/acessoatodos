@@ -98,6 +98,17 @@ func (p *Places) Put(txn newrelic.Transaction, placeID string, acc []string, lat
 		return err
 	}
 
+	session := p.session.Copy()
+	defer session.Close()
+
+	if len(acc) == 0 {
+		err := session.DB(p.dbName).C(tableName).RemoveId(objectID)
+		if err == mgo.ErrNotFound {
+			return nil
+		}
+		return err
+	}
+
 	var place Place
 	place.ID = objectID
 	place.GoogleMapsPlaceID = placeID
@@ -106,9 +117,7 @@ func (p *Places) Put(txn newrelic.Transaction, placeID string, acc []string, lat
 		Type:        "Point",
 		Coordinates: []float64{lat, lng},
 	}
-
-	session := p.session.Copy()
-	defer session.Close()
+	// TODO(danielfireman): Treat error
 	_, err = session.DB(p.dbName).C(tableName).UpsertId(objectID, &place)
 	return err
 }

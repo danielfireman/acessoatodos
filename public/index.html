@@ -9,22 +9,24 @@
       #map {
         height: 90%;
       }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
     </style>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesome-bootstrap-checkbox/0.3.7/awesome-bootstrap-checkbox.min.css">
+
     <script type = "text/javascript"  src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script type = "text/javascript"  src = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type = "text/javascript"  src = "https://cdnjs.cloudflare.com/ajax/libs/gmaps.js/0.4.24/gmaps.min.js"></script>
     <script type = "text/javascript"  src = "public/map.js"></script>
 </head>
 <body>
-<h1>Bem-vindo ao acessoatodos</h1>
-<p>Código fonte e mais detalhes no <a target="_blank" href="https://github.com/danielfireman/acessoatodos">github</a>
-</p>
+<div class="container-fluid">
+    <h1>Bem-vindo ao acessoatodos</h1>
+    <p>Código fonte e mais detalhes no <a target="_blank" href="https://github.com/danielfireman/acessoatodos">github</a>
+    </p>
 
-<div id="map"></div>
+    <div id="map"></div>
+</div>
+
 <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA37TM2zlpDlugyJQv6nR520LIha3Ne82c&callback=initMap">
 </script>

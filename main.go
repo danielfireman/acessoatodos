@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
-	"fmt"
 
 	"github.com/danielfireman/acessoatodos/maps"
 	"github.com/danielfireman/acessoatodos/placesdb"
@@ -35,7 +35,10 @@ type GetPlaceResult struct {
 	Location          LatLng   `json:"loc"`
 	Accessibility     []string `json:"accessibility"`
 	GoogleMapsPlaceID string   `json:"gmplaceid"`
-	Types []string `json:"types"`
+	Website           string   `json:"website"`
+	Address           string   `json:"address"`
+	PhoneNumber       string   `json:"phonenumber"`
+	Types             []string `json:"types"`
 }
 
 type NearbySearchResult struct {
@@ -43,7 +46,7 @@ type NearbySearchResult struct {
 	Location          LatLng   `json:"loc"`
 	Accessibility     []string `json:"accessibility"`
 	GoogleMapsPlaceID string   `json:"gmplaceid"`
-	Types []string `json:"types"`
+	Types             []string `json:"types"`
 }
 
 type LatLng struct {
@@ -84,7 +87,7 @@ func main() {
 
 	router := httprouter.New()
 	router.ServeFiles("/public/*filepath", http.Dir("public/"))
-	router.GET("/",  func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	router.GET("/", func(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		http.ServeFile(w, r, "public/index.html")
 	})
 
@@ -118,9 +121,9 @@ func main() {
 			log.Printf("Error fetching data from database: %q", err)
 		}
 
-		dbResMap := make(map[string]*placesdb.Place, len(dbRes))
+		dbResMap := make(map[string]placesdb.Place)
 		for _, r := range dbRes {
-			dbResMap[r.GoogleMapsPlaceID] = &r
+			dbResMap[r.GoogleMapsPlaceID] = r
 		}
 
 		gMapsResp := <-gMapsChan
@@ -138,7 +141,7 @@ func main() {
 					Lat: r.Lat,
 					Lng: r.Lng,
 				},
-				Name: r.Name,
+				Name:  r.Name,
 				Types: r.Types,
 			}
 			dbEntry, ok := dbResMap[result.GoogleMapsPlaceID]
@@ -248,7 +251,10 @@ func main() {
 			},
 			Name:          placeDetails.Name,
 			Accessibility: dbPlace.Accessibility,
-			Types: placeDetails.Types,
+			Types:         placeDetails.Types,
+			Website:       placeDetails.Website,
+			Address:       placeDetails.Address,
+			PhoneNumber:   placeDetails.PhoneNumber,
 		}
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(result); err != nil {

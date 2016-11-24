@@ -30,11 +30,15 @@ func DialGoogle(key string, timeout time.Duration, maxRPS, limit int) (*API, err
 }
 
 type Place struct {
-	Name  string
-	Lat   float64
-	Lng   float64
-	ID    string
-	Types []string
+	Name        string
+	Lat         float64
+	Lng         float64
+	ID          string
+	Types       []string
+	Website     string
+	Icon        string
+	Address     string
+	PhoneNumber string
 }
 
 type PlacesResult struct {
@@ -138,11 +142,15 @@ func (api *API) Get(txn newrelic.Transaction, placeID string) <-chan PlacesResul
 		resChan <- PlacesResult{
 			Results: []*Place{
 				{
-					Name:  r.Name,
-					Lat:   r.Geometry.Location.Lat,
-					Lng:   r.Geometry.Location.Lng,
-					ID:    r.PlaceID,
-					Types: r.Types,
+					Name:        r.Name,
+					Lat:         r.Geometry.Location.Lat,
+					Lng:         r.Geometry.Location.Lng,
+					ID:          r.PlaceID,
+					Types:       r.Types,
+					Website:     r.Website,
+					Icon:        r.Icon,
+					Address:     r.FormattedAddress,
+					PhoneNumber: r.FormattedPhoneNumber,
 				},
 			},
 			Error: nil,

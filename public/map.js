@@ -116,11 +116,11 @@ function onClickMoreInfoBtnFunc(placeID) {
             // Accessibility form.
             c += '<form role="form">';
             c += '<fieldset>';
-            c += '<div class="checkbox">';
+            c += '<div class="checkbox checkbox-circle">';
             c += '<input type="checkbox" value="1" '+ getChecked(p.accessibility, 1) +' >';
             c += '<label for="checkbox1">Rampa de acesso</label>';
             c += '</div>';
-            c += '<div class="checkbox">';
+            c += '<div class="checkbox checkbox-circle">';
             c += '<input type="checkbox" value="2" '+ getChecked(p.accessibility, 2) +'>';
             c += '<label for="checkbox1">Banheiro acessível</label>';
             c += '</div>';
